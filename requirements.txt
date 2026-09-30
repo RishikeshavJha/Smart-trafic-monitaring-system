@@ -1,0 +1,31 @@
+# Smart Traffic Monitoring System – requirements.txt
+#
+# Install into a Python 3.10+ virtual environment:
+#   pip install -r requirements.txt
+#
+# NOTE: ultralytics pulls in PyTorch (CPU build) which is a large download
+# (~200 MB on first install). yolov8n.pt (~6 MB) is downloaded automatically
+# on the first detection run – internet access is needed once.
+# After that, the model is cached locally and no internet is required.
+
+# ── Web framework ──────────────────────────────────────────────────────────────
+Flask>=3.0
+Flask-WTF           # CSRF protection and form helpers
+Flask-Compress      # gzip response compression
+
+# ── Environment / config ───────────────────────────────────────────────────────
+python-dotenv       # loads .env file into os.environ
+
+# ── Numerical / image processing ───────────────────────────────────────────────
+numpy
+opencv-python-headless  # OpenCV without GUI dependencies (runs on servers / laptops)
+
+# ── Detection & tracking ───────────────────────────────────────────────────────
+ultralytics         # YOLOv8 models; installs PyTorch (CPU) as a dependency
+lapx                # Pure-Python LAP solver required by ByteTrack inside ultralytics
+
+# ── Machine learning (basic forecast) ─────────────────────────────────────────
+scikit-learn        # LinearRegression for the indicative traffic forecast
+
+# ── Testing ────────────────────────────────────────────────────────────────────
+pytest

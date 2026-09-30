@@ -1,0 +1,26 @@
+{
+  "college": "FILL - Replace with your college name",
+  "department": "Department of Computer Engineering",
+  "course": "IDEA Lab-II",
+  "academic_year": "FILL - e.g. 2025-26",
+  "guide": "FILL - Replace with your guide's name",
+  "team": [
+    {"name": "FILL - Team Member 1", "roll_no": "FILL"},
+    {"name": "FILL - Team Member 2", "roll_no": "FILL"},
+    {"name": "FILL - Team Member 3", "roll_no": "FILL"}
+  ],
+  "presentation_date": "FILL - e.g. 2025-11-15",
+  "theme": "Urban System",
+  "project_title": "Smart Traffic Monitoring System",
+  "references": [
+    "FILL - Reference 1 (exact text from your slide 14)",
+    "FILL - Reference 2",
+    "FILL - Reference 3",
+    "FILL - Reference 4",
+    "FILL - Reference 5",
+    "FILL - Reference 6",
+    "FILL - Reference 7",
+    "FILL - Reference 8"
+  ],
+  "repo_note": "FILL - e.g. 'Source code available at github.com/yourrepo' or 'Available on request'"
+}

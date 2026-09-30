@@ -1,0 +1,265 @@
+{% import "partials/icons.html" as icons %}
+<!DOCTYPE html>
+<!--
+  templates/base.html
+  Base layout template for the Smart Traffic Monitoring System.
+  Style: "Transit Signage Control Room"
+
+  Features:
+    - Non-deferred theme initialization script (no FOUC / flash of wrong theme).
+    - Skip-to-content accessibility link (WCAG 2.4.1).
+    - Sticky navigation with brand mark, connection status pill, active page indicator, maroon CTA, theme toggle, and accessible mobile focus trap.
+    - Global toast container with polite live region.
+    - 4-column structured footer reading from {{ project }}.
+    - No inline scripts/styles (CSP compliant).
+-->
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{% block description %}Smart Traffic Monitoring System – camera-assisted vehicle counting, density classification, congestion detection and signal timing advisory.{% endblock %}">
+  <meta name="theme-color" content="#0B1220">
+  <meta name="csrf-token" content="{{ csrf_token() if csrf_token is defined else '' }}">
+
+  <title>{% block title %}Smart Traffic Monitoring System{% endblock %}</title>
+
+  <!-- SEO & Canonical Metadata -->
+  <link rel="canonical" href="{% block canonical_url %}{{ request.base_url }}{% endblock %}">
+  {% block robots %}<meta name="robots" content="index, follow">{% endblock %}
+
+  <!-- Open Graph / Facebook / LinkedIn -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Smart Traffic Monitoring System">
+  <meta property="og:url" content="{{ request.base_url }}">
+  <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}Camera-assisted vehicle counting, density classification, congestion detection, and adaptive signal timing prototype.{% endblock %}">
+  <meta property="og:image" content="{{ url_for('static', filename='img/og-cover.png', _external=True) }}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{% block twitter_title %}{{ self.title() }}{% endblock %}">
+  <meta name="twitter:description" content="{% block twitter_description %}Camera-assisted vehicle counting, density classification, congestion detection, and adaptive signal timing prototype.{% endblock %}">
+  <meta name="twitter:image" content="{{ url_for('static', filename='img/og-cover.png', _external=True) }}">
+
+  <!-- Favicon Set & Web App Manifest -->
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='img/favicon-32.png') }}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='img/favicon-180.png') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
+
+  <!-- Structured Data: JSON-LD SoftwareApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Smart Traffic Monitoring System",
+    "operatingSystem": "Web, Windows, Linux, macOS",
+    "applicationCategory": "UrbanPlanningApplication",
+    "description": "Camera-assisted vehicle counting, density classification, congestion detection, and adaptive signal timing advisory system.",
+    "softwareVersion": "1.0.0",
+    "author": {
+      "@type": "Organization",
+      "name": "Department of Computer Science and Engineering"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0.00",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+
+  <!-- Immediate Non-Deferred Theme Initialization (Zero Flash) -->
+  <script src="{{ url_for('static', filename='js/theme-init.js') }}"></script>
+
+  <!-- Stylesheets -->
+  <link rel="preload" href="{{ url_for('static', filename='css/tokens.css') }}" as="style">
+  <link rel="preload" href="{{ url_for('static', filename='css/base.css') }}" as="style">
+  <link rel="preload" href="{{ url_for('static', filename='css/components.css') }}" as="style">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tokens.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- Keyboard Skip Link -->
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+  <!-- ================================================================ -->
+  <!-- Sticky Site Navigation Header                                     -->
+  <!-- ================================================================ -->
+  <header class="site-header" role="banner">
+    <nav class="site-nav" aria-label="Primary navigation">
+
+      <!-- Brand Mark -->
+      <a class="nav-brand" href="{{ url_for('pages.index') }}" aria-label="Smart Traffic Monitoring System Home">
+        {{ icons.icon_traffic_light(size=26, class_name="nav-brand-icon") }}
+        <span class="nav-brand-text">Smart Traffic Monitoring</span>
+      </a>
+
+      <!-- Connection Status Pill (Navbar) -->
+      <div class="status-pill status-pill--simulation" data-connection-status aria-label="System status: Running simulated traffic data">
+        <span class="status-pill-icon">
+          <span class="status-dot status-dot--simulation" aria-hidden="true"></span>
+        </span>
+        <span class="status-pill-label">Simulation</span>
+      </div>
+
+      <!-- Mobile Hamburger Trigger -->
+      <button class="nav-toggle" aria-controls="primary-nav-menu" aria-expanded="false" aria-label="Toggle navigation menu">
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+
+      <!-- Navigation Menu (Desktop inline, Mobile full-screen overlay) -->
+      <div class="nav-menu" id="primary-nav-menu">
+        <ul class="nav-links" role="list">
+          <li>
+            <a href="{{ url_for('pages.index') }}" class="nav-link {% if request.endpoint == 'pages.index' %}nav-link--active{% endif %}" {% if request.endpoint == 'pages.index' %}aria-current="page"{% endif %}>
+              Home
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('pages.dashboard') }}" class="nav-link {% if request.endpoint == 'pages.dashboard' %}nav-link--active{% endif %}" {% if request.endpoint == 'pages.dashboard' %}aria-current="page"{% endif %}>
+              Dashboard
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('pages.analytics') }}" class="nav-link {% if request.endpoint == 'pages.analytics' %}nav-link--active{% endif %}" {% if request.endpoint == 'pages.analytics' %}aria-current="page"{% endif %}>
+              Analytics
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('pages.settings') }}" class="nav-link {% if request.endpoint == 'pages.settings' %}nav-link--active{% endif %}" {% if request.endpoint == 'pages.settings' %}aria-current="page"{% endif %}>
+              Settings
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('pages.about') }}" class="nav-link {% if request.endpoint == 'pages.about' %}nav-link--active{% endif %}" {% if request.endpoint == 'pages.about' %}aria-current="page"{% endif %}>
+              About
+            </a>
+          </li>
+        </ul>
+
+        <!-- Action Items: CTA Launch Button & Theme Toggle -->
+        <div class="nav-actions">
+          <a href="{{ url_for('pages.dashboard') }}" class="nav-cta" id="nav-launch-cta">
+            {{ icons.icon_play(size=16) }}
+            Launch Live Dashboard
+          </a>
+
+          <!-- Theme Toggle Button -->
+          <button class="btn btn--icon" id="theme-toggle-btn" aria-label="Switch to light theme" aria-pressed="true">
+            <span class="icon--sun" aria-hidden="true">{{ icons.icon_sun(size=18) }}</span>
+            <span class="icon--moon" aria-hidden="true">{{ icons.icon_moon(size=18) }}</span>
+          </button>
+        </div>
+      </div>
+
+    </nav>
+  </header>
+
+  <!-- ================================================================ -->
+  <!-- Main Content Landmark (id="main")                                 -->
+  <!-- ================================================================ -->
+  <main id="main" tabindex="-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ================================================================ -->
+  <!-- 4-Column Structured Footer                                        -->
+  <!-- ================================================================ -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+
+        <!-- Column 1: Project -->
+        <div class="footer-col">
+          <h2 class="footer-heading">Project</h2>
+          <ul class="footer-links">
+            <li><a href="{{ url_for('pages.about') }}#overview" class="footer-link">About Overview</a></li>
+            <li><a href="{{ url_for('pages.about') }}#objectives" class="footer-link">Objectives</a></li>
+            <li><a href="{{ url_for('pages.about') }}#methodology" class="footer-link">Methodology</a></li>
+            <li><a href="{{ url_for('pages.download_readme') }}" class="footer-link">Download README</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 2: Product -->
+        <div class="footer-col">
+          <h2 class="footer-heading">Product</h2>
+          <ul class="footer-links">
+            <li><a href="{{ url_for('pages.dashboard') }}" class="footer-link">Live Dashboard</a></li>
+            <li><a href="{{ url_for('pages.analytics') }}" class="footer-link">Historical Analytics</a></li>
+            <li><a href="{{ url_for('pages.settings') }}" class="footer-link">System Settings</a></li>
+            {% if config.DEBUG %}
+            <li><a href="{{ url_for('pages.styleguide') }}" class="footer-link">Design Styleguide</a></li>
+            {% endif %}
+          </ul>
+        </div>
+
+        <!-- Column 3: Legal & Privacy Policy -->
+        <div class="footer-col">
+          <h2 class="footer-heading">Privacy &amp; Policy</h2>
+          <ul class="footer-links">
+            <li><a href="{{ url_for('pages.about') }}#privacy" class="footer-link">Privacy Guarantee</a></li>
+            <li><a href="{{ url_for('pages.about') }}#terms" class="footer-link">Terms of Use</a></li>
+            <li><a href="{{ url_for('pages.about') }}#data-policy" class="footer-link">Data Policy</a></li>
+          </ul>
+          <p class="footer-text" style="font-size: var(--text-xs); margin-top: var(--space-2); color: var(--text-muted);">
+            <strong>Privacy Note:</strong> No number plates or faces are read or stored. Video frames are processed in-memory and never saved to disk.
+          </p>
+        </div>
+
+        <!-- Column 4: College & Course Credits -->
+        <div class="footer-col">
+          <h2 class="footer-heading">Academic Credits</h2>
+          <div class="footer-text stack stack-xs">
+            <p><strong>{{ project.college | default("College Engineering Department") }}</strong></p>
+            <p>{{ project.department | default("Department of Computer Engineering") }}</p>
+            <p>{{ project.course | default("IDEA Lab-II") }} {% if project.academic_year %}&bull; {{ project.academic_year }}{% endif %}</p>
+            {% if project.guide %}<p>Guide: {{ project.guide }}</p>{% endif %}
+            {% if project.team %}
+            <p style="font-size: var(--text-xs);">
+              Team:
+              {% for member in project.team %}
+                {{ member.name }}{% if not loop.last %}, {% endif %}
+              {% endfor %}
+            </p>
+            {% endif %}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer Bottom Bar -->
+      <div class="footer-bottom">
+        <p class="footer-text">
+          &copy; {{ project.academic_year | default("2025-26") }} {{ project.project_title | default("Smart Traffic Monitoring System") }}. All rights reserved.
+        </p>
+        <p class="footer-disclaimer">
+          Educational prototype. Not for controlling real traffic signals.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Core JavaScript ES Modules -->
+  <script type="module" src="{{ url_for('static', filename='js/modules/theme.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/modules/nav.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/modules/toast.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/modules/connection.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/modules/api.js') }}"></script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{#
+  templates/analytics.html – Historical traffic reports, 24x7 peak heatmap, and indicative forecast.
+  Style: "Transit Signage Control Room"
+#}
+
+{% block title %}Analytics &amp; Historical Reports — Smart Traffic Monitoring System{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/analytics.css') }}">
+  <script src="{{ url_for('static', filename='vendor/chart.umd.min.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="analytics-page container" aria-label="Historical Analytics &amp; Reports">
+
+  <!-- Header -->
+  <header class="dash-header">
+    <div class="dash-title-group">
+      <span class="eyebrow">Control Room &bull; Retrospective Telemetry</span>
+      <h1 class="dash-title">Traffic Analytics &amp; Trends</h1>
+    </div>
+    <div class="cluster cluster-sm">
+      <span id="badge-sim-notice" class="badge badge--simulated" style="display: none;">Includes Simulated Data</span>
+      <a href="/api/export.csv" class="btn btn--secondary btn--sm" id="btn-export-csv" download>
+        {{ icons.icon_download(size=14) }} Download CSV
+      </a>
+    </div>
+  </header>
+
+  <!-- Filter Toolbar -->
+  <section class="analytics-toolbar" aria-label="Date range and approach filters">
+    <div class="analytics-filters">
+      <div class="cluster cluster-xs">
+        <label for="filter-from" style="font-size: var(--text-xs); color: var(--text-muted);">From:</label>
+        <input type="datetime-local" id="filter-from" class="filter-input">
+      </div>
+      <div class="cluster cluster-xs">
+        <label for="filter-to" style="font-size: var(--text-xs); color: var(--text-muted);">To:</label>
+        <input type="datetime-local" id="filter-to" class="filter-input">
+      </div>
+
+      <div class="quick-ranges" role="group" aria-label="Quick date range shortcuts">
+        <button type="button" class="quick-range-btn" data-range="1h">Last Hour</button>
+        <button type="button" class="quick-range-btn" data-range="today">Today</button>
+        <button type="button" class="quick-range-btn is-active" data-range="7d">Last 7 Days</button>
+      </div>
+
+      <div class="cluster cluster-xs">
+        <label for="filter-zone" style="font-size: var(--text-xs); color: var(--text-muted);">Zone:</label>
+        <select id="filter-zone" class="filter-input">
+          <option value="">All Zones (N, S, E, W)</option>
+          <option value="N">North (N)</option>
+          <option value="S">South (S)</option>
+          <option value="E">East (E)</option>
+          <option value="W">West (W)</option>
+        </select>
+      </div>
+    </div>
+
+    <button type="button" class="btn btn--primary btn--sm" id="btn-apply-filters">
+      {{ icons.icon_refresh(size=14) }} Apply Filters
+    </button>
+  </section>
+
+  <!-- Top Analytics Row: Heatmap & Forecast Card -->
+  <div class="dash-main-grid">
+
+    <!-- 24x7 Peak Hour Heatmap (Left Column) -->
+    <div class="dash-left-col stack stack-lg">
+      <section class="dash-panel" aria-labelledby="heading-heatmap">
+        <div class="dash-panel-header cluster cluster-between">
+          <div>
+            <h2 class="dash-panel-title" id="heading-heatmap">24&times;7 Diurnal Peak-Hour Heatmap</h2>
+            <p style="font-size: var(--text-xs); color: var(--text-muted); margin: 0;">
+              Average vehicle queue density across all hours of the day and days of the week.
+            </p>
+          </div>
+          <span class="tag-sign" style="font-size: var(--text-xs);">Sequential Colormap</span>
+        </div>
+
+        <div class="heatmap-container" id="heatmap-container">
+          <!-- Populated dynamically by analytics.js -->
+        </div>
+
+        <!-- Accessible Hidden Table Alternative for Screen Readers -->
+        <div class="sr-only" id="heatmap-sr-container">
+          <table aria-label="Diurnal 24 by 7 hourly average traffic occupancy matrix">
+            <caption>Hourly Average Traffic Density by Day of Week</caption>
+            <thead>
+              <tr>
+                <th scope="col">Day</th>
+                <th scope="col">Hour Range</th>
+                <th scope="col">Average Density</th>
+              </tr>
+            </thead>
+            <tbody id="heatmap-sr-body">
+              <tr>
+                <td>Monday–Sunday</td>
+                <td>00:00–23:00</td>
+                <td>Available visually in heatmap matrix</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="heatmap-insights" style="font-size: var(--text-xs); color: var(--text-muted); margin-top: var(--space-2);">
+          <strong>Top Peak Hours:</strong> <span id="heatmap-top-peaks">Loading analysis...</span>
+        </div>
+      </section>
+
+      <!-- 5-Minute Resolution Historical Log Table -->
+      <section class="dash-panel" aria-labelledby="heading-history-table">
+        <div class="dash-panel-header cluster cluster-between">
+          <h2 class="dash-panel-title" id="heading-history-table">Aggregated Traffic Logs</h2>
+          <span class="tag-sign" id="history-total-tag">25 Rows</span>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="data-table" aria-label="Aggregated traffic history log records">
+            <thead>
+              <tr>
+                <th scope="col">Timestamp (UTC)</th>
+                <th scope="col">Source Mode</th>
+                <th scope="col">Zone</th>
+                <th scope="col">Avg Occupancy</th>
+                <th scope="col">Density Level</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body">
+              <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: var(--space-6);">
+                  Loading traffic history logs...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-pagination">
+          <span id="pagination-info">Page 1 of 1</span>
+          <div class="cluster cluster-xs">
+            <button type="button" class="btn btn--ghost btn--sm" id="btn-page-prev" disabled>&larr; Previous</button>
+            <button type="button" class="btn btn--ghost btn--sm" id="btn-page-next" disabled>Next &rarr;</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Right Column: Bar Chart & Forecast Card -->
+    <div class="dash-right-col stack stack-lg">
+
+      <!-- Indicative Linear Regression Forecast Card -->
+      <section class="dash-panel" aria-labelledby="heading-forecast">
+        <div class="dash-panel-header cluster cluster-between">
+          <h2 class="dash-panel-title" id="heading-forecast">Next-Interval Forecast</h2>
+          <span class="badge badge--estimate">INDICATIVE</span>
+        </div>
+
+        <div class="stack stack-sm" id="forecast-card-body">
+          <div class="cluster cluster-between" style="align-items: baseline;">
+            <span class="comp-label">Projected Queue:</span>
+            <span class="comp-val font-mono" id="forecast-pred-val" style="font-size: var(--text-2xl); color: var(--brand-secondary-text);">--</span>
+          </div>
+
+          <div style="height: 60px; width: 100%; position: relative;">
+            <canvas id="forecast-sparkline" aria-hidden="true"></canvas>
+          </div>
+
+          <p style="font-size: var(--text-xs); color: var(--text-muted); margin: 0; line-height: 1.4;">
+            <strong id="forecast-label">basic forecast, linear regression on last 10 intervals, indicative only</strong>
+          </p>
+        </div>
+
+        <div id="forecast-empty" style="display: none; padding: var(--space-4); text-align: center; color: var(--text-muted); font-size: var(--text-xs);">
+          Insufficient interval data for linear regression (minimum 3 intervals required).
+        </div>
+      </section>
+
+      <!-- Zone Average Occupancy Bar Chart -->
+      <section class="dash-panel" aria-labelledby="heading-zone-averages">
+        <div class="dash-panel-header cluster cluster-between">
+          <h2 class="dash-panel-title" id="heading-zone-averages">Average Density by Zone</h2>
+          <span class="tag-sign" style="font-size: var(--text-xs);">All Approaches</span>
+        </div>
+
+        <div style="height: 220px; width: 100%; position: relative;">
+          <canvas id="zone-averages-chart" aria-hidden="true"></canvas>
+        </div>
+
+        <!-- Accessible Hidden Table for Zone Averages -->
+        <div class="sr-only" id="zone-averages-sr-container">
+          <table aria-label="Average density across intersection zones">
+            <caption>Approach Zone Average Densities</caption>
+            <thead>
+              <tr>
+                <th scope="col">Zone Approach</th>
+                <th scope="col">Average Occupancy</th>
+              </tr>
+            </thead>
+            <tbody id="zone-averages-sr-body">
+              <tr><td>North (N)</td><td id="sr-avg-n">0.0</td></tr>
+              <tr><td>South (S)</td><td id="sr-avg-s">0.0</td></tr>
+              <tr><td>East (E)</td><td id="sr-avg-e">0.0</td></tr>
+              <tr><td>West (W)</td><td id="sr-avg-w">0.0</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="zones-grid" id="zone-chips-container" style="grid-template-columns: 1fr 1fr; margin-top: var(--space-3);">
+          <!-- Zone dominant chips populated by JS -->
+        </div>
+      </section>
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script type="module" src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+{% endblock %}

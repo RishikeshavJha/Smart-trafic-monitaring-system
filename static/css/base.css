@@ -1,0 +1,416 @@
+/*
+ * static/css/base.css
+ * Base CSS, Reset, Typography, Accessibility & Core Layout Utilities
+ * for the "Transit Signage Control Room" visual system.
+ *
+ * All values map directly to tokens defined in static/css/tokens.css.
+ */
+
+/* ==========================================================================
+   1. Modern CSS Reset & Box Sizing
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--leading-normal);
+  color: var(--text);
+  background-color: var(--canvas);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color var(--transition-normal),
+              color var(--transition-normal);
+}
+
+main {
+  flex: 1;
+  display: block;
+}
+
+/* ==========================================================================
+   2. Typography Defaults
+   ========================================================================== */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text);
+}
+
+h1 { font-size: var(--text-4xl); }
+h2 { font-size: var(--text-3xl); }
+h3 { font-size: var(--text-2xl); }
+h4 { font-size: var(--text-xl); }
+h5 { font-size: var(--text-lg); }
+h6 { font-size: var(--text-base); }
+
+p {
+  line-height: var(--leading-normal);
+  color: var(--text);
+}
+
+small {
+  font-size: var(--text-sm);
+}
+
+strong, b {
+  font-weight: var(--font-weight-bold);
+}
+
+/* Data, Counters and Numbers */
+code, kbd, samp, pre, .font-mono, [data-numeric], .tabular-nums {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* ==========================================================================
+   3. Links, Media, Forms & Sensible Defaults
+   ========================================================================== */
+a {
+  color: var(--brand-secondary-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--brand-primary-hover);
+}
+
+img, svg, video, canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+svg {
+  fill: currentColor;
+}
+
+svg[fill="none"] {
+  fill: none;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+/* ==========================================================================
+   4. Accessibility & Focus States
+   ========================================================================== */
+/* Screen Reader Only Utility */
+.sr-only,
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Keyboard Skip Link */
+.skip-link {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: 9999;
+  background: var(--brand-primary);
+  color: var(--brand-primary-text);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sign);
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--text-sm);
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-200%);
+  transition: transform var(--transition-fast);
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Global Focus-Visible Ring */
+:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring-shadow);
+}
+
+/* Remove default focus when not using keyboard */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ==========================================================================
+   5. Prefers-Reduced-Motion Rules
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   6. Core Layout & Wayfinding Utilities
+   ========================================================================== */
+
+/* Max-width container with responsive fluid padding */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-pad);
+}
+
+/* Strict 12-Column Control Room Grid System */
+.grid {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+.grid-cols-6  { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.grid-cols-4  { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid-cols-3  { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-cols-2  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-cols-1  { grid-template-columns: 1fr; }
+
+/* Grid Column Spans */
+.col-span-12 { grid-column: span 12 / span 12; }
+.col-span-8  { grid-column: span 8 / span 8; }
+.col-span-6  { grid-column: span 6 / span 6; }
+.col-span-4  { grid-column: span 4 / span 4; }
+.col-span-3  { grid-column: span 3 / span 3; }
+.col-span-2  { grid-column: span 2 / span 2; }
+.col-span-1  { grid-column: span 1 / span 1; }
+
+@media (max-width: 900px) {
+  .col-span-8,
+  .col-span-6,
+  .col-span-4,
+  .col-span-3 {
+    grid-column: span 12 / span 12;
+  }
+}
+
+/* Stack: Vertical Layout with Configurable Rhythm */
+.stack {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.stack-xs { gap: var(--space-1); }
+.stack-sm { gap: var(--space-2); }
+.stack-md { gap: var(--space-4); }
+.stack-lg { gap: var(--space-6); }
+.stack-xl { gap: var(--space-8); }
+.stack-2xl{ gap: var(--space-12); }
+
+/* Cluster: Horizontal Grouping with Auto-Wrap */
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.cluster-xs { gap: var(--space-1); }
+.cluster-sm { gap: var(--space-2); }
+.cluster-md { gap: var(--space-4); }
+.cluster-lg { gap: var(--space-6); }
+.cluster-between { justify-content: space-between; }
+.cluster-center  { justify-content: center; }
+
+/* Eyebrow: Signage / Control-Room Style Small Label */
+.eyebrow {
+  display: inline-block;
+  font-family: var(--font-heading);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--tracking-sign);
+  text-transform: uppercase;
+  color: var(--brand-secondary-text);
+}
+
+/* Thin Rule Line Divider */
+.rule, hr.rule {
+  display: block;
+  width: 100%;
+  height: 1px;
+  border: none;
+  background-color: var(--rule);
+  margin-block: var(--space-6);
+}
+
+.rule-vertical {
+  display: inline-block;
+  width: 1px;
+  height: 1.5em;
+  background-color: var(--rule);
+  vertical-align: middle;
+  margin-inline: var(--space-2);
+}
+
+/* ==========================================================================
+   7. Control Room Panels & Signage Components
+   ========================================================================== */
+
+/* High-Contrast Flat Panel / Card */
+.panel {
+  background-color: var(--surface);
+  border: var(--card-border);
+  border-radius: var(--radius-card);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition-fast),
+              background-color var(--transition-normal);
+}
+
+.panel-raised {
+  background-color: var(--surface-raised);
+  border: var(--card-border);
+  border-radius: var(--radius-card);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-md);
+}
+
+/* Signage Badges & Tags */
+.tag-sign {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sign);
+  font-family: var(--font-heading);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--tracking-sign);
+  text-transform: uppercase;
+  border: 1px solid var(--rule);
+  line-height: 1.2;
+}
+
+/* Traffic Signal Status Badges */
+.tag-signal-green {
+  background-color: var(--signal-green-bg);
+  border-color: var(--signal-green);
+  color: var(--text);
+}
+.tag-signal-green::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--signal-green);
+}
+
+.tag-signal-amber {
+  background-color: var(--signal-amber-bg);
+  border-color: var(--signal-amber);
+  color: var(--text);
+}
+.tag-signal-amber::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--signal-amber);
+}
+
+.tag-signal-red {
+  background-color: var(--signal-red-bg);
+  border-color: var(--signal-red);
+  color: var(--text);
+}
+.tag-signal-red::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--signal-red);
+}
+
+/* Primary Button (Maroon CTA background with white text) */
+.btn-primary,
+.btn--primary {
+  background-color: var(--brand-primary) !important;
+  color: var(--brand-primary-text) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: var(--radius-sign);
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  box-shadow: var(--shadow-sm);
+  transition: background-color var(--transition-fast),
+              transform var(--transition-fast);
+}
+
+.btn-primary:hover,
+.btn--primary:hover {
+  background-color: var(--brand-primary-hover) !important;
+  color: var(--brand-primary-text) !important;
+}
+
+.btn-primary:active,
+.btn--primary:active {
+  background-color: var(--brand-primary-active) !important;
+}

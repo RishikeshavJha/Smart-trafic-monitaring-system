@@ -1,0 +1,56 @@
+# .gitignore for Smart Traffic Monitoring System
+
+# ── Virtual environments ────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+
+# ── Python bytecode ─────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# ── Egg / build artefacts ───────────────────────────────────────────────────
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ── Environment / secrets ───────────────────────────────────────────────────
+.env
+*.env.local
+
+# ── Database files ──────────────────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+
+# ── Uploaded videos (kept outside static/ per project rules) ────────────────
+uploads/
+
+# ── YOLO model weights cache ─────────────────────────────────────────────────
+*.pt
+*.onnx
+*.engine
+runs/
+
+# ── pytest cache and coverage ───────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ── OS artefacts ────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDE files ────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ── Logs ────────────────────────────────────────────────────────────────────
+*.log

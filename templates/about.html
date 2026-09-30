@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+{#
+  templates/about.html – Project overview, measurable objectives, methodology diagram,
+  literature review, limitations, future scope, privacy/terms, references, and team attribution.
+  Style: "Transit Signage Control Room"
+#}
+
+{% block title %}About &amp; System Overview — Smart Traffic Monitoring System{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/about.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="about-page container" aria-label="About the Smart Traffic Monitoring System">
+
+  <!-- Header -->
+  <header class="dash-header">
+    <div class="dash-title-group">
+      <span class="eyebrow">IDEA Lab-II &bull; Urban System Project</span>
+      <h1 class="dash-title">Smart Traffic Monitoring System</h1>
+    </div>
+    <div class="cluster cluster-sm">
+      <span class="tag-sign" style="font-family: var(--font-mono); font-size: var(--text-xs);">
+        ACADEMIC PROTOTYPE
+      </span>
+    </div>
+  </header>
+
+  <!-- 1. Overview Section -->
+  <section class="about-section" id="overview" aria-labelledby="heading-overview">
+    <div class="about-section-header">
+      <span class="eyebrow">Introduction</span>
+      <h2 class="about-section-title" id="heading-overview">Project Overview</h2>
+    </div>
+    <p style="font-size: var(--text-base); color: var(--text-muted); line-height: 1.6; max-width: 850px;">
+      The primary goal of this academic prototype is to <strong>observe operational traffic patterns in urban environments and demonstrate a very basic system for improvement</strong>. Traditional fixed-time intersection controllers fail to adapt to asymmetric diurnal traffic surges, causing unnecessary vehicle idling, fuel wastage, and transit delays. This prototype leverages open-source computer vision (YOLOv8 and ByteTrack) combined with classical transportation engineering delay models (Webster's uniform delay) to provide real-time queue classification and adaptive green interval recommendations.
+    </p>
+  </section>
+
+  <!-- 2. Measurable Objectives Section -->
+  <section class="about-section" id="objectives" aria-labelledby="heading-objectives">
+    <div class="about-section-header">
+      <span class="eyebrow">Engineering Goals</span>
+      <h2 class="about-section-title" id="heading-objectives">Measurable Objectives &amp; Verification Targets</h2>
+    </div>
+
+    <div class="objectives-grid">
+      <article class="objective-card">
+        <div class="objective-header">
+          <span class="eyebrow" style="font-size: var(--text-xs);">Objective 1</span>
+          <span class="badge badge--estimate">Target: &ge; 85%</span>
+        </div>
+        <strong style="font-size: var(--text-sm);">Vehicle Counting Accuracy</strong>
+        <p style="font-size: var(--text-xs); color: var(--text-muted); margin: 0;">
+          Vehicle counting accuracy of at least 85% across standard test video footage under nominal daylight visibility.
+        </p>
+        <span class="font-mono" style="font-size: var(--text-2xs); color: var(--brand-secondary-text); margin-top: auto;">
+          Measured result: <strong>Not yet measured</strong>
+        </span>
+      </article>
+
+      <article class="objective-card">
+        <div class="objective-header">
+          <span class="eyebrow" style="font-size: var(--text-xs);">Objective 2</span>
+          <span class="badge badge--estimate">Target: ~ 1 Hz</span>
+        </div>
+        <strong style="font-size: var(--text-sm);">Dashboard Telemetry Latency</strong>
+        <p style="font-size: var(--text-xs); color: var(--text-muted); margin: 0;">
+          Live dashboard refresh and telemetry streaming updated approximately once per second without UI freezing.
+        </p>
+        <span class="font-mono" style="font-size: var(--text-2xs); color: var(--brand-secondary-text); margin-top: auto;">
+          Measured result: <strong>Not yet measured</strong>
+        </span>
+      </article>
+
+      <article class="objective-card">
+        <div class="objective-header">
+          <span class="eyebrow" style="font-size: var(--text-xs);">Objective 3</span>
+          <span class="badge badge--estimate">Target: 3 Levels</span>
+        </div>
+        <strong style="font-size: var(--text-sm);">Density Classification</strong>
+        <p style="font-size: var(--text-xs); color: var(--text-muted); margin: 0;">
+          Continuous classification of approach queue occupancy into 3 discrete states: Low, Medium, and High.
+        </p>
+        <span class="font-mono" style="font-size: var(--text-2xs); color: var(--brand-secondary-text); margin-top: auto;">
+          Measured result: <strong>Not yet measured</strong>
+        </span>
+      </article>
+
+      <article class="objective-card">
+        <div class="objective-header">
+          <span class="eyebrow" style="font-size: var(--text-xs);">Objective 4</span>
+          <span class="badge badge--estimate">Target: Within N sec</span>
+        </div>
+        <strong style="font-size: var(--text-sm);">Congestion Alert Sensitivity</strong>
+        <p style="font-size: var(--text-xs); color: var(--text-muted); margin: 0;">
+          Congestion alert raised within the configured persistence duration (default 10 seconds of continuous High density).
+        </p>
+        <span class="font-mono" style="font-size: var(--text-2xs); color: var(--brand-secondary-text); margin-top: auto;">
+          Measured result: <strong>Not yet measured</strong>
+        </span>
+      </article>
+
+      <article class="objective-card">
+        <div class="objective-header">
+          <span class="eyebrow" style="font-size: var(--text-xs);">Objective 5</span>
+          <span class="badge badge--estimate">Target: Webster Delay</span>
+        </div>
+        <strong style="font-size: var(--text-sm);">Signal Optimization Advisor</strong>
+        <p style="font-size: var(--text-xs); color: var(--text-muted); margin: 0;">
+          Suggested adaptive green timing computed and displayed side-by-side against the static 30 s fixed baseline timer.
+        </p>
+        <span class="font-mono" style="font-size: var(--text-2xs); color: var(--brand-secondary-text); margin-top: auto;">
+          Measured result: <strong>Not yet measured</strong>
+        </span>
+      </article>
+    </div>
+  </section>
+
+  <!-- 3. Methodology Section with Inline Accessible SVG Diagram -->
+  <section class="about-section" id="methodology" aria-labelledby="heading-methodology">
+    <div class="about-section-header">
+      <span class="eyebrow">Architecture Flow</span>
+      <h2 class="about-section-title" id="heading-methodology">System Pipeline &amp; Methodology</h2>
+    </div>
+
+    <div class="methodology-diagram-wrapper">
+      <svg class="methodology-svg" viewBox="0 0 920 160" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="svg-methodology-title svg-methodology-desc">
+        <title id="svg-methodology-title">Traffic Monitoring System Pipeline Diagram</title>
+        <desc id="svg-methodology-desc">Sequential flow from Video Input through YOLOv8 Detection, ByteTrack Tracking, Spatial Zone Analysis, Signal Decision Logic, to the Live Dashboard.</desc>
+
+        <!-- 1. Video Input -->
+        <rect x="10" y="30" width="120" height="90" rx="6" fill="#121C30" stroke="rgba(232, 238, 247, 0.14)" stroke-width="1.5"/>
+        <text x="70" y="65" fill="#E8EEF7" font-family="'Space Grotesk', sans-serif" font-weight="bold" font-size="13" text-anchor="middle">1. Video Input</text>
+        <text x="70" y="85" fill="#9FB0C8" font-family="'Space Grotesk', sans-serif" font-size="10" text-anchor="middle">Sample / Upload / Cam</text>
+
+        <!-- Arrow 1 -->
+        <path d="M 130 75 L 160 75" stroke="#D4A017" stroke-width="2" marker-end="url(#arrow)"/>
+
+        <!-- 2. Detection (YOLOv8n) -->
+        <rect x="160" y="30" width="130" height="90" rx="6" fill="#121C30" stroke="rgba(232, 238, 247, 0.14)" stroke-width="1.5"/>
+        <text x="225" y="65" fill="#E8EEF7" font-family="'Space Grotesk', sans-serif" font-weight="bold" font-size="13" text-anchor="middle">2. Detection</text>
+        <text x="225" y="85" fill="#3B82F6" font-family="'JetBrains Mono', monospace" font-size="11" text-anchor="middle">YOLOv8n (CPU)</text>
+        <text x="225" y="102" fill="#9FB0C8" font-family="'Space Grotesk', sans-serif" font-size="9" text-anchor="middle">COCO 4-Class Filter</text>
+
+        <!-- Arrow 2 -->
+        <path d="M 290 75 L 320 75" stroke="#D4A017" stroke-width="2"/>
+
+        <!-- 3. Tracking & Counting -->
+        <rect x="320" y="30" width="140" height="90" rx="6" fill="#121C30" stroke="rgba(232, 238, 247, 0.14)" stroke-width="1.5"/>
+        <text x="390" y="65" fill="#E8EEF7" font-family="'Space Grotesk', sans-serif" font-weight="bold" font-size="13" text-anchor="middle">3. Tracking &amp; Count</text>
+        <text x="390" y="85" fill="#F59E0B" font-family="'JetBrains Mono', monospace" font-size="11" text-anchor="middle">ByteTrack + Line</text>
+        <text x="390" y="102" fill="#9FB0C8" font-family="'Space Grotesk', sans-serif" font-size="9" text-anchor="middle">2D Cross-Product Test</text>
+
+        <!-- Arrow 3 -->
+        <path d="M 460 75 L 490 75" stroke="#D4A017" stroke-width="2"/>
+
+        <!-- 4. Spatial Density -->
+        <rect x="490" y="30" width="130" height="90" rx="6" fill="#121C30" stroke="rgba(232, 238, 247, 0.14)" stroke-width="1.5"/>
+        <text x="555" y="65" fill="#E8EEF7" font-family="'Space Grotesk', sans-serif" font-weight="bold" font-size="13" text-anchor="middle">4. Density</text>
+        <text x="555" y="85" fill="#10B981" font-family="'JetBrains Mono', monospace" font-size="11" text-anchor="middle">N/S/E/W Zones</text>
+        <text x="555" y="102" fill="#9FB0C8" font-family="'Space Grotesk', sans-serif" font-size="9" text-anchor="middle">Point-In-Polygon</text>
+
+        <!-- Arrow 4 -->
+        <path d="M 620 75 L 650 75" stroke="#D4A017" stroke-width="2"/>
+
+        <!-- 5. Decision & Advisory -->
+        <rect x="650" y="30" width="130" height="90" rx="6" fill="#121C30" stroke="rgba(232, 238, 247, 0.14)" stroke-width="1.5"/>
+        <text x="715" y="65" fill="#E8EEF7" font-family="'Space Grotesk', sans-serif" font-weight="bold" font-size="13" text-anchor="middle">5. Decision</text>
+        <text x="715" y="85" fill="#EC4899" font-family="'JetBrains Mono', monospace" font-size="11" text-anchor="middle">Webster Delay</text>
+        <text x="715" y="102" fill="#9FB0C8" font-family="'Space Grotesk', sans-serif" font-size="9" text-anchor="middle">Congestion Persistence</text>
+
+        <!-- Arrow 5 -->
+        <path d="M 780 75 L 810 75" stroke="#D4A017" stroke-width="2"/>
+
+        <!-- 6. Control Dashboard -->
+        <rect x="810" y="30" width="100" height="90" rx="6" fill="#1A2740" stroke="#D4A017" stroke-width="2"/>
+        <text x="860" y="65" fill="#E8EEF7" font-family="'Space Grotesk', sans-serif" font-weight="bold" font-size="13" text-anchor="middle">6. Telemetry</text>
+        <text x="860" y="85" fill="#D4A017" font-family="'JetBrains Mono', monospace" font-size="11" text-anchor="middle">1 Hz SSE</text>
+        <text x="860" y="102" fill="#9FB0C8" font-family="'Space Grotesk', sans-serif" font-size="9" text-anchor="middle">Live Dashboard</text>
+      </svg>
+    </div>
+
+    <!-- Text Alternative for Screen Readers -->
+    <ol class="sr-only">
+      <li>Input: Video source ingestion from file, sample, or webcam.</li>
+      <li>Detection: YOLOv8n object detection running on CPU, filtering COCO vehicle classes (car, motorcycle, bus, truck).</li>
+      <li>Tracking &amp; Counting: ByteTrack persistent association with 2D cross-product line crossing logic.</li>
+      <li>Density: Spatial point-in-polygon containment analysis across 4 approach zones.</li>
+      <li>Decision: Congestion threshold checks and Webster uniform delay signal optimization.</li>
+      <li>Output: Server-Sent Events (SSE) telemetry feed to the live interactive web dashboard.</li>
+    </ol>
+  </section>
+
+  <!-- 4. Literature Review Summary Table -->
+  <section class="about-section" id="literature" aria-labelledby="heading-literature">
+    <div class="about-section-header">
+      <span class="eyebrow">Academic Context</span>
+      <h2 class="about-section-title" id="heading-literature">Literature Review Summary</h2>
+    </div>
+
+    <div class="lit-table-wrapper">
+      <table class="lit-table" aria-label="Literature review comparison table">
+        <thead>
+          <tr>
+            <th scope="col" style="width: 25%;">Reference</th>
+            <th scope="col" style="width: 25%;">Focus</th>
+            <th scope="col" style="width: 25%;">Limitation</th>
+            <th scope="col" style="width: 25%;">Relation to Prototype</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Lin, Jeng, and Liao (2021)</strong><br><span style="color: var(--text-muted);">IEEE Trans. Intell. Transp. Syst.</span></td>
+            <td>Vision-based vehicle counting and density classification across multiple highway lanes.</td>
+            <td>High computational complexity; requires dedicated server-grade GPU hardware.</td>
+            <td>Informs our lightweight CPU-optimised pipeline using scaled YOLOv8n and ByteTrack.</td>
+          </tr>
+          <tr>
+            <td><strong>Wei et al. (2018) IntelliLight</strong><br><span style="color: var(--text-muted);">ACM SIGKDD Conf.</span></td>
+            <td>Deep Reinforcement Learning (DRL) for adaptive multi-phase traffic signal control.</td>
+            <td>Black-box decision policies; difficult to verify safety in real-world deployment.</td>
+            <td>Demonstrates the need for explainable, transparent rule-based Webster formulas over opaque RL.</td>
+          </tr>
+          <tr>
+            <td><strong>Adigopula (2022)</strong><br><span style="color: var(--text-muted);">Smart Cities Symposium</span></td>
+            <td>Edge-computing traffic surveillance using low-cost cameras and microcontrollers.</td>
+            <td>Restricted to single-camera viewpoints; limited handling of complex multi-leg junctions.</td>
+            <td>Directly inspires our single 16:9 overhead camera approach with multi-zone calibration.</td>
+          </tr>
+          <tr>
+            <td><strong>Lilhore et al. (2022)</strong><br><span style="color: var(--text-muted);">Wireless Communications &amp; Mobile Computing</span></td>
+            <td>Hybrid YOLO and IoT framework for automated emergency vehicle preemption.</td>
+            <td>Requires physical connected IoT onboard units in emergency vehicles.</td>
+            <td>Highlights future integration pathways for prioritized transit and emergency corridors.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 5 & 6. Limitations and Future Scope -->
+  <div class="info-columns-grid">
+
+    <!-- Limitations -->
+    <section class="about-section" id="limitations" aria-labelledby="heading-limitations">
+      <div class="about-section-header">
+        <span class="eyebrow">Constraints</span>
+        <h2 class="about-section-title" id="heading-limitations">System Limitations</h2>
+      </div>
+
+      <ul class="info-bullet-list">
+        <li class="info-bullet-item">
+          <span class="info-bullet-icon">&bull;</span>
+          <span><strong>Adverse Weather &amp; Lighting:</strong> Nighttime darkness, heavy rain, and lens glare reduce object detection confidence and tracking accuracy.</span>
+        </li>
+        <li class="info-bullet-item">
+          <span class="info-bullet-icon">&bull;</span>
+          <span><strong>Auto-Rickshaw Classification:</strong> Auto-rickshaws and e-rickshaws are not native COCO classes and are mapped to generic cars or motorcycles.</span>
+        </li>
+        <li class="info-bullet-item">
+          <span class="info-bullet-icon">&bull;</span>
+          <span><strong>Mixed Traffic Density:</strong> Unlane-disciplined heterogeneous traffic with severe occlusion makes individual bounding box separation challenging.</span>
+        </li>
+        <li class="info-bullet-item">
+          <span class="info-bullet-icon">&bull;</span>
+          <span><strong>Indicative Delay Model:</strong> Waiting time is an illustrative Webster uniform estimate, not a certified physical sensor measurement.</span>
+        </li>
+        <li class="info-bullet-item">
+          <span class="info-bullet-icon">&bull;</span>
+          <span><strong>No Physical Actuation:</strong> As an academic prototype, this system never directly controls physical road signal controllers.</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Future Scope -->
+    <section class="about-section" id="future-scope" aria-labelledby="heading-future-scope">
+      <div class="about-section-header">
+        <span class="eyebrow">Roadmap</span>
+        <h2 class="about-section-title" id="heading-future-scope">Future Scope</h2>
+      </div>
+
+      <ul class="info-bullet-list">
+        <li class="info-bullet-item">
+          <span class="info-bullet-icon">&bull;</span>
+          <span><strong>Physical Controller Integration:</strong> Connecting output green suggestions to standard NTCIP / SCATS traffic light controller protocols.</span>
+        </li>
+        <li class="info-bullet-item">
+          <span class="info-bullet-icon">&bull;</span>
+          <span><strong>Edge Hardware Optimization:</strong> Compiling models to TensorRT or ONNX Runtime for low-power Raspberry Pi 5 or Jetson deployment.</span>
+        </li>
+        <li class="info-bullet-item">
+          <span class="info-bullet-icon">&bull;</span>
+          <span><strong>Emergency Priority:</strong> Audio siren classification and optical strobe detection for automated emergency green waves.</span>
+        </li>
+        <li class="info-bullet-item">
+          <span class="info-bullet-icon">&bull;</span>
+          <span><strong>Smart City C4I Integration:</strong> REST and MQTT APIs for unified integration into municipal Intelligent Transport Systems (ITS).</span>
+        </li>
+      </ul>
+    </section>
+
+  </div>
+
+  <!-- 7. Privacy & Terms -->
+  <section class="about-section" id="privacy" aria-labelledby="heading-privacy">
+    <div class="about-section-header">
+      <span class="eyebrow">Ethics &amp; Governance</span>
+      <h2 class="about-section-title" id="heading-privacy">Privacy Policy &amp; Terms of Use</h2>
+    </div>
+
+    <div class="settings-card">
+      <p style="font-size: var(--text-sm); color: var(--text-muted); line-height: 1.6; margin: 0;">
+        <strong>Privacy by Design:</strong> This system processes video frames strictly in volatile RAM memory.
+        No license plate recognition (ALPR), facial recognition, or biometric identification is performed or stored.
+        Raw video frames are never written to the SQLite database or saved permanently to disk. Uploaded test files are automatically deleted after 24 hours.
+      </p>
+      <p id="terms" style="font-size: var(--text-sm); color: var(--text-muted); line-height: 1.6; margin: 0;">
+        <strong>Educational Terms:</strong> This software is provided as an open-source educational prototype for the IDEA Lab-II engineering curriculum. It is provided &ldquo;as is&rdquo; without warranty of any kind and is not designed or certified for real-world municipal traffic actuation.
+      </p>
+    </div>
+  </section>
+
+  <!-- 8. References List -->
+  <section class="about-section" id="references" aria-labelledby="heading-references">
+    <div class="about-section-header">
+      <span class="eyebrow">Bibliography</span>
+      <h2 class="about-section-title" id="heading-references">References</h2>
+    </div>
+
+    {% if config.get("DEBUG") and (not project.references or project.references|length < 8 or 'FILL' in project.references|join('')) %}
+      <div class="congestion-banner" style="animation: none;">
+        <span><strong>Developer Note:</strong> content/project.json references contain FILL placeholders. Update content/project.json before final evaluation.</span>
+      </div>
+    {% endif %}
+
+    <ol class="references-list">
+      {% for ref in project.references %}
+        <li>{{ ref }}</li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  <!-- 9. Team & Academic Attribution -->
+  <section class="about-section" id="team" aria-labelledby="heading-team">
+    <div class="about-section-header">
+      <span class="eyebrow">Project Team</span>
+      <h2 class="about-section-title" id="heading-team">Academic Attribution</h2>
+    </div>
+
+    <div class="settings-card">
+      <div class="cluster cluster-between">
+        <div>
+          <strong style="font-size: var(--text-base);">{{ project.college }}</strong>
+          <p style="font-size: var(--text-xs); color: var(--text-muted); margin: 0;">
+            {{ project.department }} &bull; {{ project.course }} ({{ project.academic_year }})
+          </p>
+        </div>
+        <span class="tag-sign">Guide: {{ project.guide }}</span>
+      </div>
+
+      <div class="team-grid" style="margin-top: var(--space-4);">
+        {% for member in project.team %}
+          <div class="team-card">
+            <span class="team-name">{{ member.name }}</span>
+            <span class="team-roll">Roll No: {{ member.roll_no }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

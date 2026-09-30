@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{#
+  templates/500.html – Custom 500 Server Error page in "Signal is Red" control-room theme.
+#}
+
+{% block title %}500 Internal Server Error — Smart Traffic Monitoring System{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+
+{% block content %}
+<div class="error-page container" role="main" aria-labelledby="error-heading" style="text-align: center; padding-block: var(--space-12); max-width: 540px; margin-inline: auto;">
+
+  <!-- "Signal is Red" Traffic Light Graphic -->
+  <div class="error-icon" aria-hidden="true" style="display: inline-flex; justify-content: center; margin-bottom: var(--space-4);">
+    <svg width="64" height="120" viewBox="0 0 64 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="8" y="4" width="48" height="112" rx="10" fill="#121C30" stroke="rgba(232, 238, 247, 0.14)" stroke-width="2"/>
+      <!-- RED Lamp (LIT) -->
+      <circle cx="32" cy="30" r="14" fill="#EF4444"/>
+      <circle cx="32" cy="30" r="18" stroke="#EF4444" stroke-width="1.5" opacity="0.4"/>
+      <!-- AMBER Lamp (OFF) -->
+      <circle cx="32" cy="62" r="14" fill="#1A2740" stroke="rgba(232, 238, 247, 0.1)" stroke-width="1"/>
+      <!-- GREEN Lamp (OFF) -->
+      <circle cx="32" cy="94" r="14" fill="#1A2740" stroke="rgba(232, 238, 247, 0.1)" stroke-width="1"/>
+    </svg>
+  </div>
+
+  <h1 class="error-code font-mono" id="error-heading" style="font-size: clamp(2.5rem, 5vw, 3.5rem); color: var(--signal-red); margin-bottom: var(--space-2);">
+    500 &bull; System Halt
+  </h1>
+  <p class="error-message" style="font-family: var(--font-heading); font-size: var(--text-lg); font-weight: var(--font-weight-bold); color: var(--text); margin-bottom: var(--space-2);">
+    Internal Server Exception Occurred
+  </p>
+  <p class="error-detail" style="font-size: var(--text-sm); color: var(--text-muted); line-height: 1.5; margin-bottom: var(--space-6);">
+    The pipeline coordinator encountered an unexpected condition. Telemetry logs have been captured safely without leaking internal stack traces.
+  </p>
+
+  <div class="cluster cluster-center cluster-sm">
+    <a class="btn btn--primary btn--sm" href="{{ url_for('pages.index') }}">
+      Return to Home
+    </a>
+    <a class="btn btn--secondary btn--sm" href="{{ url_for('pages.dashboard') }}">
+      Live Dashboard
+    </a>
+  </div>
+
+</div>
+{% endblock %}

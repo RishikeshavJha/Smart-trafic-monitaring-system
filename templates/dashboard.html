@@ -1,0 +1,494 @@
+{% extends "base.html" %}
+{#
+  templates/dashboard.html – Live traffic control room monitoring dashboard.
+  Style: "Transit Signage Control Room"
+
+  Features:
+    - 12-column responsive layout (mobile-first).
+    - Top status & segmented source controls (Simulation, Sample, Upload, Webcam).
+    - 16:9 Live Video / Simulated Graphic stream HUD panel.
+    - Animated tabular KPI tiles (crossed vehicles, active alerts, suggested green, average density).
+    - 4 Approach Zone cards (N, S, E, W) with linear/semicircular density gauges and signal driver badge.
+    - Self-hosted Chart.js multi-line 5-minute occupancy chart & vehicle breakdown doughnut chart.
+    - Reusable animated TrafficLightWidget comparison card with Webster delay calculation.
+    - Real-time alerts feed with polite live announcement region and dismissible top congestion banner.
+#}
+
+{% block title %}Live Dashboard — Smart Traffic Monitoring System{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <!-- Self-hosted Chart.js library (No external CDN) -->
+  <script src="{{ url_for('static', filename='vendor/chart.umd.min.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page container" aria-label="Live traffic control room dashboard">
+
+  <!-- ============================================================ -->
+  <!-- Top Congestion Alert Banner (Dismissible, role="alert")       -->
+  <!-- ============================================================ -->
+  <aside id="congestion-banner" class="congestion-banner" role="alert" aria-live="assertive" style="display: none;">
+    <div class="congestion-banner-content">
+      <div class="congestion-banner-icon" aria-hidden="true">
+        {{ icons.icon_alert_triangle(size=22) }}
+      </div>
+      <div class="congestion-banner-text">
+        <strong id="congestion-banner-title">Congestion Warning:</strong>
+        <span id="congestion-banner-msg">Sustained High density detected.</span>
+      </div>
+    </div>
+    <button type="button" class="btn btn--icon btn--sm congestion-banner-close" id="congestion-banner-dismiss" aria-label="Dismiss congestion alert banner">
+      {{ icons.icon_close(size=18) }}
+    </button>
+  </aside>
+
+  <!-- ============================================================ -->
+  <!-- Header & Control Room Status Bar                             -->
+  <!-- ============================================================ -->
+  <header class="dash-header">
+    <div class="dash-title-group">
+      <span class="eyebrow">Control Room &bull; Live Telemetry</span>
+      <h1 class="dash-title">Intersection Control Center</h1>
+    </div>
+
+    <!-- Mode Badge & Connection Pill -->
+    <div class="dash-status-cluster">
+      <span id="dash-sim-badge" class="badge badge--simulated">SIMULATED</span>
+      <span id="dash-engine-mode" class="tag-sign" style="font-family: var(--font-mono); font-size: var(--text-xs);">
+        MODE: SIMULATION
+      </span>
+    </div>
+  </header>
+
+  <!-- ============================================================ -->
+  <!-- Top Control Bar: Source Selector Segmented Control & Actions -->
+  <!-- ============================================================ -->
+  <section class="dash-toolbar" aria-label="Input stream controls">
+    <div class="dash-source-selector" role="radiogroup" aria-label="Select traffic video or synthetic source">
+      <label class="segmented-option">
+        <input type="radio" name="source-select" value="simulation" id="src-opt-sim" checked>
+        <span class="segmented-btn">Simulation</span>
+      </label>
+      <label class="segmented-option">
+        <input type="radio" name="source-select" value="sample" id="src-opt-sample">
+        <span class="segmented-btn">Sample Video</span>
+      </label>
+      <label class="segmented-option">
+        <input type="radio" name="source-select" value="upload" id="src-opt-upload">
+        <span class="segmented-btn">Upload Video</span>
+      </label>
+      <label class="segmented-option">
+        <input type="radio" name="source-select" value="webcam" id="src-opt-webcam">
+        <span class="segmented-btn">Live Webcam</span>
+      </label>
+    </div>
+
+    <div class="dash-actions" role="group" aria-label="Stream start and stop actions">
+      <button type="button" class="btn btn--primary btn--sm" id="btn-start-stream" aria-label="Start traffic processing stream">
+        {{ icons.icon_play(size=16) }}
+        Start Engine
+      </button>
+      <button type="button" class="btn btn--secondary btn--sm" id="btn-stop-stream" aria-label="Stop traffic processing stream">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+        </svg>
+        Stop Engine
+      </button>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- KPI Row: 4 Critical Metrics with Animated Counters           -->
+  <!-- ============================================================ -->
+  <section class="kpi-grid" aria-label="Live performance metrics">
+
+    <!-- KPI 1: Total Counted -->
+    <article class="kpi-card" aria-labelledby="kpi-label-crossed">
+      <div class="kpi-header">
+        <span class="kpi-label" id="kpi-label-crossed">Crossed Line (5s Interval)</span>
+        <div class="kpi-icon" aria-hidden="true">{{ icons.icon_camera(size=18) }}</div>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-val font-mono" id="kpi-val-crossed" aria-live="polite">0</span>
+        <span class="kpi-sub">Vehicles / interval</span>
+      </div>
+    </article>
+
+    <!-- KPI 2: Active Alerts -->
+    <article class="kpi-card" aria-labelledby="kpi-label-alerts">
+      <div class="kpi-header">
+        <span class="kpi-label" id="kpi-label-alerts">Active Congestion Alerts</span>
+        <div class="kpi-icon" aria-hidden="true">{{ icons.icon_bell(size=18) }}</div>
+      </div>
+      <div class="kpi-body">
+        <div class="cluster cluster-sm" style="align-items: baseline;">
+          <span class="kpi-val font-mono" id="kpi-val-alerts" aria-live="polite">0</span>
+          <span id="kpi-alert-status-badge" class="badge" style="background: var(--signal-green-bg); color: var(--signal-green); border: 1px solid var(--signal-green);">
+            Normal
+          </span>
+        </div>
+        <span class="kpi-sub">Unresolved high-density episodes</span>
+      </div>
+    </article>
+
+    <!-- KPI 3: Suggested Green -->
+    <article class="kpi-card" aria-labelledby="kpi-label-green">
+      <div class="kpi-header">
+        <span class="kpi-label" id="kpi-label-green">Suggested Green Phase</span>
+        <div class="kpi-icon" aria-hidden="true">{{ icons.icon_traffic_light(size=18) }}</div>
+      </div>
+      <div class="kpi-body">
+        <div class="cluster cluster-sm" style="align-items: baseline;">
+          <span class="kpi-val font-mono" id="kpi-val-green" aria-live="polite">30s</span>
+          <span style="font-size: var(--text-xs); color: var(--text-muted);">(Fixed: 30s)</span>
+        </div>
+        <span class="kpi-sub">Serving busiest approach (<strong id="kpi-val-driver">N</strong>)</span>
+      </div>
+    </article>
+
+    <!-- KPI 4: Average Density -->
+    <article class="kpi-card" aria-labelledby="kpi-label-density">
+      <div class="kpi-header">
+        <span class="kpi-label" id="kpi-label-density">Junction Density Level</span>
+        <div class="kpi-icon" aria-hidden="true">{{ icons.icon_grid(size=18) }}</div>
+      </div>
+      <div class="kpi-body">
+        <div class="cluster cluster-sm" style="align-items: baseline;">
+          <span class="kpi-val" id="kpi-val-density" aria-live="polite" style="font-size: var(--text-2xl);">Medium</span>
+          <span id="kpi-density-chip" class="tag-sign" style="font-size: var(--text-xs); border-color: var(--signal-amber); color: var(--signal-amber);">
+            MODERATE
+          </span>
+        </div>
+        <span class="kpi-sub">Weighted across all 4 zones</span>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- Main Grid: Video Stream Left, Signal & Breakdown Right       -->
+  <!-- ============================================================ -->
+  <div class="dash-main-grid">
+
+    <!-- Left Column: Video HUD Panel & Multi-Line Time Chart -->
+    <div class="dash-left-col stack stack-lg">
+
+      <!-- Video Feed / Simulation 16:9 Display Panel -->
+      <section class="dash-panel video-panel-container" aria-labelledby="video-panel-title">
+        <div class="dash-panel-header cluster cluster-between">
+          <h2 class="dash-panel-title" id="video-panel-title">
+            Visual Stream Monitor
+          </h2>
+          <div class="cluster cluster-sm">
+            <span class="tag-sign" id="stream-fps-badge" style="font-family: var(--font-mono); font-size: var(--text-xs);">
+              1.0 FPS &bull; 640x360
+            </span>
+          </div>
+        </div>
+
+        <div class="video-viewport" id="video-viewport">
+          <!-- Skeleton Loader -->
+          <div class="video-skeleton" id="video-skeleton" style="display: none;">
+            <div class="skeleton-shimmer"></div>
+            <span style="position: absolute; color: var(--text-muted); font-size: var(--text-sm);">Loading stream pipeline...</span>
+          </div>
+
+          <!-- Simulation / No-Video Graphic Placeholder -->
+          <div class="video-sim-placeholder" id="video-sim-placeholder">
+            <div class="sim-radar-circle" aria-hidden="true"></div>
+            <div class="sim-radar-sweep" aria-hidden="true"></div>
+            <div class="sim-overlay-hud">
+              <span class="badge badge--simulated">SIMULATED DATA</span>
+              <p class="sim-hud-text">Simulated data, no video feed active</p>
+              <span class="sim-hud-hint">YOLOv8 &amp; ByteTrack active in simulated telemetry mode</span>
+            </div>
+          </div>
+
+          <!-- Real Video Feed Image (Wired in prompt 11) -->
+          <img id="video-feed-img" class="video-feed-stream" src="" alt="Real-time traffic detection stream" style="display: none;">
+        </div>
+      </section>
+
+      <!-- 5-Minute Zone History Multi-Line Chart -->
+      <section class="dash-panel chart-panel" aria-labelledby="chart-panel-title">
+        <div class="dash-panel-header cluster cluster-between">
+          <div class="stack stack-xs">
+            <h2 class="dash-panel-title" id="chart-panel-title">
+              Vehicle Density Over Time
+            </h2>
+            <p style="font-size: var(--text-xs); color: var(--text-muted); margin-bottom: 0;">
+              Rolling 5-minute approach zone queue occupancies (1 Hz sample resolution)
+            </p>
+          </div>
+          <span class="tag-sign" style="color: var(--brand-secondary-text); border-color: var(--brand-secondary);">
+            Live Feed
+          </span>
+        </div>
+
+        <div class="chart-container" style="position: relative; height: 280px; width: 100%;">
+          <canvas id="traffic-line-chart" aria-hidden="true"></canvas>
+        </div>
+
+        <!-- Accessible Hidden Table Alternative for Screen Readers -->
+        <div class="sr-only" id="line-chart-sr-container">
+          <table aria-label="Historical approach zone vehicle occupancy data">
+            <caption>Recent Approach Zone Occupancies</caption>
+            <thead>
+              <tr>
+                <th scope="col">Timestamp</th>
+                <th scope="col">North (N)</th>
+                <th scope="col">South (S)</th>
+                <th scope="col">East (E)</th>
+                <th scope="col">West (W)</th>
+              </tr>
+            </thead>
+            <tbody id="line-chart-sr-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Right Column: Signal Advisor & Vehicle Type Breakdown -->
+    <div class="dash-right-col stack stack-lg">
+
+      <!-- Signal Plan Comparison Card -->
+      <section class="dash-panel signal-panel" aria-labelledby="signal-card-title">
+        <div class="dash-panel-header cluster cluster-between">
+          <h2 class="dash-panel-title" id="signal-card-title">
+            Signal Timing Advisor
+          </h2>
+          <span class="badge badge--estimate" title="ESTIMATE, not measured">ESTIMATE</span>
+        </div>
+
+        <div class="stack stack-md">
+          <!-- Traffic Light State Visualizer Container -->
+          <div class="signal-visualizer-box">
+            <div class="stack stack-xs" style="align-items: center; text-align: center;">
+              <span class="eyebrow" style="font-size: var(--text-xs);">Active Signal State</span>
+              <div id="dash-traffic-light"></div>
+            </div>
+          </div>
+
+          <!-- Side-by-Side Timing Numbers -->
+          <div class="comparison-box">
+            <div class="comparison-item">
+              <span class="comp-label">Fixed Baseline</span>
+              <span class="comp-val font-mono" id="timing-baseline-green">30s</span>
+              <span class="comp-sub">Static timer</span>
+            </div>
+            <div class="comparison-item" style="border-left: 1px solid var(--rule); padding-left: var(--space-4);">
+              <span class="comp-label" style="color: var(--brand-secondary-text);">Suggested Green</span>
+              <span class="comp-val font-mono" id="timing-suggested-green" style="color: var(--brand-secondary-text);">30s</span>
+              <span class="comp-sub" style="color: var(--brand-secondary-text);">Adaptive phase</span>
+            </div>
+          </div>
+
+          <!-- Delay Impact Analysis -->
+          <div class="stack stack-xs">
+            <div class="cluster cluster-between" style="align-items: baseline;">
+              <span class="eyebrow" style="font-size: var(--text-xs);">Webster Uniform Delay</span>
+              <div class="tooltip-trigger" tabindex="0" aria-describedby="dash-webster-tip" aria-label="Delay Model Assumptions">
+                {{ icons.icon_info(size=14) }}
+                <div class="tooltip-box" id="dash-webster-tip" role="tooltip" style="max-width: 280px; white-space: normal;">
+                  <strong>Webster's Uniform Delay:</strong>
+                  <code>d = (C - g)² / (2C)</code>. Assumes uniform arrivals on served approach. Excludes cross-street queues. ESTIMATE, not measured.
+                </div>
+              </div>
+            </div>
+
+            <div class="cluster cluster-between" style="align-items: baseline;">
+              <span style="font-size: var(--text-sm); color: var(--text-muted);">
+                Fixed: <strong id="timing-delay-fixed" class="font-mono" style="color: var(--text);">7.5s</strong> &rarr;
+                Adaptive: <strong id="timing-delay-suggested" class="font-mono" style="color: var(--brand-secondary-text);">7.5s</strong>
+              </span>
+              <span id="timing-delay-delta" class="delta-badge delta-badge--neutral">0.0s delay</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Doughnut Chart: Vehicle Type Distribution -->
+      <section class="dash-panel vehicle-type-panel" aria-labelledby="veh-type-title">
+        <div class="dash-panel-header cluster cluster-between">
+          <h2 class="dash-panel-title" id="veh-type-title">
+            Vehicle Classification
+          </h2>
+          <span class="tag-sign" style="font-family: var(--font-mono); font-size: var(--text-xs);">
+            COCO 4-Class
+          </span>
+        </div>
+
+        <div class="doughnut-wrapper">
+          <div style="width: 140px; height: 140px; position: relative;">
+            <canvas id="vehicle-doughnut-chart" aria-hidden="true"></canvas>
+          </div>
+
+          <!-- Accessible Detailed Breakdown List -->
+          <ul class="veh-type-list" id="vehicle-type-list" role="list">
+            <li class="veh-type-item" role="listitem">
+              <span class="veh-type-bullet" style="background-color: #3B82F6;" aria-hidden="true"></span>
+              <span class="veh-type-name">Cars</span>
+              <strong class="veh-type-val font-mono" id="count-car">0</strong>
+            </li>
+            <li class="veh-type-item" role="listitem">
+              <span class="veh-type-bullet" style="background-color: #EF4444;" aria-hidden="true"></span>
+              <span class="veh-type-name">Motorcycles</span>
+              <strong class="veh-type-val font-mono" id="count-moto">0</strong>
+            </li>
+            <li class="veh-type-item" role="listitem">
+              <span class="veh-type-bullet" style="background-color: #0EA5E9;" aria-hidden="true"></span>
+              <span class="veh-type-name">Buses</span>
+              <strong class="veh-type-val font-mono" id="count-bus">0</strong>
+            </li>
+            <li class="veh-type-item" role="listitem">
+              <span class="veh-type-bullet" style="background-color: #D4A017;" aria-hidden="true"></span>
+              <span class="veh-type-name">Trucks</span>
+              <strong class="veh-type-val font-mono" id="count-truck">0</strong>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 4 Approach Zone Density Cards (N, S, E, W)                   -->
+  <!-- ============================================================ -->
+  <section class="zones-section" aria-labelledby="zones-heading">
+    <div class="cluster cluster-between" style="margin-bottom: var(--space-4);">
+      <div class="stack stack-xs">
+        <span class="eyebrow">Approach Density Status</span>
+        <h2 class="dash-panel-title" id="zones-heading" style="margin-bottom: 0;">
+          Four-Way Intersection Zones
+        </h2>
+      </div>
+      <span class="tag-sign" style="font-size: var(--text-xs);">
+        Thresholds: Low &lt; 5 &bull; Med 5–12 &bull; High &gt; 12
+      </span>
+    </div>
+
+    <div class="zones-grid" role="list">
+
+      <!-- Zone North -->
+      <article class="zone-card" id="zone-card-N" role="listitem">
+        <div class="zone-card-header">
+          <span class="zone-title">North Approach (N)</span>
+          <span class="zone-driver-badge" id="driver-badge-N" style="display: none;">Driving signal</span>
+        </div>
+        <div class="zone-card-body">
+          <div class="zone-count-display">
+            <span class="zone-count-val font-mono" id="zone-count-N">0</span>
+            <span class="zone-count-sub">vehicles</span>
+          </div>
+          <span class="density-chip density-chip--low" id="zone-chip-N">
+            <span class="density-chip-dot" aria-hidden="true"></span>
+            <span class="density-chip-text">Low</span>
+          </span>
+        </div>
+        <div class="zone-gauge-track" aria-hidden="true">
+          <div class="zone-gauge-fill zone-gauge-fill--low" id="zone-gauge-N" style="width: 0%;"></div>
+        </div>
+      </article>
+
+      <!-- Zone South -->
+      <article class="zone-card" id="zone-card-S" role="listitem">
+        <div class="zone-card-header">
+          <span class="zone-title">South Approach (S)</span>
+          <span class="zone-driver-badge" id="driver-badge-S" style="display: none;">Driving signal</span>
+        </div>
+        <div class="zone-card-body">
+          <div class="zone-count-display">
+            <span class="zone-count-val font-mono" id="zone-count-S">0</span>
+            <span class="zone-count-sub">vehicles</span>
+          </div>
+          <span class="density-chip density-chip--low" id="zone-chip-S">
+            <span class="density-chip-dot" aria-hidden="true"></span>
+            <span class="density-chip-text">Low</span>
+          </span>
+        </div>
+        <div class="zone-gauge-track" aria-hidden="true">
+          <div class="zone-gauge-fill zone-gauge-fill--low" id="zone-gauge-S" style="width: 0%;"></div>
+        </div>
+      </article>
+
+      <!-- Zone East -->
+      <article class="zone-card" id="zone-card-E" role="listitem">
+        <div class="zone-card-header">
+          <span class="zone-title">East Approach (E)</span>
+          <span class="zone-driver-badge" id="driver-badge-E" style="display: none;">Driving signal</span>
+        </div>
+        <div class="zone-card-body">
+          <div class="zone-count-display">
+            <span class="zone-count-val font-mono" id="zone-count-E">0</span>
+            <span class="zone-count-sub">vehicles</span>
+          </div>
+          <span class="density-chip density-chip--low" id="zone-chip-E">
+            <span class="density-chip-dot" aria-hidden="true"></span>
+            <span class="density-chip-text">Low</span>
+          </span>
+        </div>
+        <div class="zone-gauge-track" aria-hidden="true">
+          <div class="zone-gauge-fill zone-gauge-fill--low" id="zone-gauge-E" style="width: 0%;"></div>
+        </div>
+      </article>
+
+      <!-- Zone West -->
+      <article class="zone-card" id="zone-card-W" role="listitem">
+        <div class="zone-card-header">
+          <span class="zone-title">West Approach (W)</span>
+          <span class="zone-driver-badge" id="driver-badge-W" style="display: none;">Driving signal</span>
+        </div>
+        <div class="zone-card-body">
+          <div class="zone-count-display">
+            <span class="zone-count-val font-mono" id="zone-count-W">0</span>
+            <span class="zone-count-sub">vehicles</span>
+          </div>
+          <span class="density-chip density-chip--low" id="zone-chip-W">
+            <span class="density-chip-dot" aria-hidden="true"></span>
+            <span class="density-chip-text">Low</span>
+          </span>
+        </div>
+        <div class="zone-gauge-track" aria-hidden="true">
+          <div class="zone-gauge-fill zone-gauge-fill--low" id="zone-gauge-W" style="width: 0%;"></div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- Live Congestion Alerts Feed Table                            -->
+  <!-- ============================================================ -->
+  <section class="dash-panel alerts-panel" aria-labelledby="alerts-feed-title">
+    <div class="dash-panel-header cluster cluster-between">
+      <div class="cluster cluster-sm">
+        <h2 class="dash-panel-title" id="alerts-feed-title">
+          Live Congestion Alerts Feed
+        </h2>
+        <span class="badge" id="alerts-count-tag" style="background: var(--surface); border: 1px solid var(--rule); font-family: var(--font-mono);">
+          0 Total
+        </span>
+      </div>
+      <button type="button" class="btn btn--ghost btn--sm" id="btn-refresh-alerts" aria-label="Refresh alerts list">
+        {{ icons.icon_refresh(size=14) }} Refresh
+      </button>
+    </div>
+
+    <div class="alerts-feed-container" role="region" aria-live="polite" aria-atomic="false" id="alerts-feed-region">
+      <ul class="alerts-feed-list" id="alerts-feed-list" role="list">
+        <li class="alerts-feed-empty" id="alerts-empty-placeholder">
+          No congestion alerts raised. All approaches operating within nominal thresholds.
+        </li>
+      </ul>
+    </div>
+  </section>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script type="module" src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{#
+  templates/settings.html – System parameters, camera/ROI calibration, and input source configuration.
+  Style: "Transit Signage Control Room"
+#}
+
+{% block title %}System Settings — Smart Traffic Monitoring System{% endblock %}
+{% block description %}System configuration and camera ROI zone calibration parameters for the Smart Traffic Monitoring System.{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="settings-page container" aria-label="System Settings & Calibration">
+
+  <!-- Header -->
+  <header class="dash-header">
+    <div class="dash-title-group">
+      <span class="eyebrow">Control Room &bull; Calibration</span>
+      <h1 class="dash-title">System Configuration</h1>
+    </div>
+    <div class="cluster cluster-sm">
+      <button type="button" class="btn btn--secondary btn--sm" id="btn-restore-defaults">
+        {{ icons.icon_refresh(size=14) }} Restore Defaults
+      </button>
+      <button type="button" class="btn btn--primary btn--sm" id="btn-save-settings">
+        {{ icons.icon_check(size=14) }} Save Changes
+      </button>
+    </div>
+  </header>
+
+  <div class="settings-grid-layout">
+
+    <!-- Left Column: Form Thresholds & Parameters -->
+    <div class="settings-card">
+
+      <!-- 1. Input Source Selection (Reusing SourcePicker) -->
+      <section class="settings-form-section" aria-labelledby="heading-source-picker">
+        <h2 class="section-title" id="heading-source-picker">Input Source &amp; Video Ingestion</h2>
+        <p class="section-desc">Select active detection video stream, sample playback, or live camera device.</p>
+        <div id="source-picker-container"></div>
+      </section>
+
+      <!-- 2. Density Thresholds -->
+      <section class="settings-form-section" aria-labelledby="heading-density-th">
+        <h2 class="section-title" id="heading-density-th">Density Classification</h2>
+        <p class="section-desc">Vehicle occupancy counts separating Low, Medium, and High approach levels.</p>
+
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label class="form-label" for="setting-density-low">Low Max Threshold (Vehicles)</label>
+            <input type="number" id="setting-density-low" class="form-input-number" min="1" max="50" value="5" aria-describedby="hint-density-low err-density-low">
+            <span class="form-hint" id="hint-density-low">Occupancy &lt; this value &rarr; Low</span>
+            <span class="form-error-msg" id="err-density-low"></span>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="setting-density-high">High Min Threshold (Vehicles)</label>
+            <input type="number" id="setting-density-high" class="form-input-number" min="2" max="100" value="12" aria-describedby="hint-density-high err-density-high">
+            <span class="form-hint" id="hint-density-high">Occupancy &gt; this value &rarr; High</span>
+            <span class="form-error-msg" id="err-density-high"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Congestion Persistence -->
+      <section class="settings-form-section" aria-labelledby="heading-congestion">
+        <h2 class="section-title" id="heading-congestion">Congestion Persistence</h2>
+        <p class="section-desc">Duration of uninterrupted High density required before raising a warning alert.</p>
+
+        <div class="form-field">
+          <label class="form-label" for="setting-congestion-sec">Sustained High Duration (Seconds)</label>
+          <input type="number" id="setting-congestion-sec" class="form-input-number" min="1" max="300" value="10" aria-describedby="hint-congestion err-congestion">
+          <span class="form-hint" id="hint-congestion">Episodes lasting longer than this trigger toasts and banner alerts</span>
+          <span class="form-error-msg" id="err-congestion"></span>
+        </div>
+      </section>
+
+      <!-- 4. Signal Optimization Timing -->
+      <section class="settings-form-section" aria-labelledby="heading-signal-params">
+        <h2 class="section-title" id="heading-signal-params">Webster Signal Parameters</h2>
+        <p class="section-desc">Linear green extension model: <code>suggestedGreen = clamp(base + k &times; count, minG, maxG)</code>.</p>
+
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label class="form-label" for="setting-base-green">Base Green (Seconds)</label>
+            <input type="number" id="setting-base-green" class="form-input-number" min="5" max="120" value="30" aria-describedby="hint-base-green err-base-green">
+            <span class="form-hint" id="hint-base-green">Nominal green allocation</span>
+            <span class="form-error-msg" id="err-base-green"></span>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="setting-k">Slope Factor k (s/vehicle)</label>
+            <input type="number" id="setting-k" class="form-input-number" step="0.1" min="0.0" max="10.0" value="1.5" aria-describedby="hint-k err-k">
+            <span class="form-hint" id="hint-k">Seconds added per waiting vehicle</span>
+            <span class="form-error-msg" id="err-k"></span>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="setting-min-green">Min Green Floor (Seconds)</label>
+            <input type="number" id="setting-min-green" class="form-input-number" min="5" max="120" value="10" aria-describedby="hint-min-green err-min-green">
+            <span class="form-hint" id="hint-min-green">Minimum allowed green duration</span>
+            <span class="form-error-msg" id="err-min-green"></span>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="setting-max-green">Max Green Ceiling (Seconds)</label>
+            <input type="number" id="setting-max-green" class="form-input-number" min="10" max="180" value="60" aria-describedby="hint-max-green err-max-green">
+            <span class="form-hint" id="hint-max-green">Maximum allowed green limit</span>
+            <span class="form-error-msg" id="err-max-green"></span>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="setting-fixed-green">Baseline Comparison (Seconds)</label>
+            <input type="number" id="setting-fixed-green" class="form-input-number" min="5" max="120" value="30" aria-describedby="hint-fixed-green err-fixed-green">
+            <span class="form-hint" id="hint-fixed-green">Fixed baseline timer for delay comparison</span>
+            <span class="form-error-msg" id="err-fixed-green"></span>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="setting-other-phase">Other Phase + Clearance (Seconds)</label>
+            <input type="number" id="setting-other-phase" class="form-input-number" min="5" max="120" value="30" aria-describedby="hint-other-phase err-other-phase">
+            <span class="form-hint" id="hint-other-phase">Opposing phase and yellow/red interval</span>
+            <span class="form-error-msg" id="err-other-phase"></span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Right Column: Interactive Canvas Zone & Counting Line Editor -->
+    <div class="settings-card">
+      <div class="cluster cluster-between" style="align-items: baseline;">
+        <div>
+          <h2 class="section-title">Spatial Calibration &amp; ROI Editor</h2>
+          <p class="section-desc">Drag handle points to reposition counting line and approach zones. Use arrow keys to nudge.</p>
+        </div>
+        <label class="cluster cluster-xs" style="cursor: pointer; font-size: var(--text-xs); font-weight: var(--font-weight-semibold);">
+          <input type="checkbox" id="check-single-roi"> Single Zone Mode
+        </label>
+      </div>
+
+      <!-- Canvas Editor Container -->
+      <div class="editor-canvas-container" id="editor-canvas-container">
+        <canvas id="roi-canvas" width="640" height="360" class="editor-canvas" tabindex="0" aria-label="Interactive zone and counting line calibration canvas. Tab to select handles, Arrow keys to adjust position."></canvas>
+      </div>
+
+      <!-- Controls & Legend -->
+      <div class="editor-toolbar">
+        <div class="editor-legend">
+          <span class="legend-item">
+            <span class="legend-swatch" style="background-color: #00FFFF;"></span> Line
+          </span>
+          <span class="legend-item">
+            <span class="legend-swatch" style="background-color: #3B82F6;"></span> N
+          </span>
+          <span class="legend-item">
+            <span class="legend-swatch" style="background-color: #10B981;"></span> S
+          </span>
+          <span class="legend-item">
+            <span class="legend-swatch" style="background-color: #F59E0B;"></span> E
+          </span>
+          <span class="legend-item">
+            <span class="legend-swatch" style="background-color: #EC4899;"></span> W
+          </span>
+        </div>
+
+        <button type="button" class="btn btn--ghost btn--sm" id="btn-reset-roi">
+          {{ icons.icon_refresh(size=14) }} Reset Canvas
+        </button>
+      </div>
+
+      <!-- Screen-reader accessible coordinate summary -->
+      <div class="sr-only" aria-live="polite" id="roi-sr-summary">
+        Normalised calibration coordinates: Counting line from [0.1, 0.55] to [0.9, 0.55].
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Confirmation Modal for Restore Defaults -->
+  <div class="modal-overlay" id="confirm-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-dialog">
+      <h3 class="section-title" id="modal-title" style="margin-bottom: 0;">Restore Default Settings?</h3>
+      <p style="font-size: var(--text-sm); color: var(--text-muted); margin: 0;">
+        This will reset all density thresholds, signal timings, counting line, and approach polygon zones to factory defaults.
+      </p>
+      <div class="cluster cluster-end cluster-sm" style="margin-top: var(--space-2);">
+        <button type="button" class="btn btn--ghost btn--sm" id="modal-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn--primary btn--sm" id="modal-confirm-btn">Confirm Reset</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script type="module" src="{{ url_for('static', filename='js/settings.js') }}"></script>
+{% endblock %}

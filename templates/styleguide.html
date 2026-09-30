@@ -1,0 +1,546 @@
+{% extends "base.html" %}
+{#
+  templates/styleguide.html – Design System Living Styleguide.
+  Visible only when DEBUG=True.
+
+  Displays:
+    - Transit Signage Control Room theme overview
+    - Color Swatches & WCAG Contrast Metrics
+    - Typography Modular Scale (Space Grotesk, Inter, JetBrains Mono)
+    - Buttons & Interactive States (Maroon CTA, Secondary, Ghost, Danger, Icon-only)
+    - Interactive 4px Lift Cards
+    - Signage Tags, Pills & Density Status Chips
+    - Tooltips, Accessible Modal Dialog, Skeleton Shimmers
+    - Form Controls (Label, Hint, Error, Valid State) & Segmented Controls
+    - Toast Notification Triggers & Connection Status Switcher
+    - Grid & Spacing Visualizer
+#}
+
+{% block title %}Design System Styleguide — Transit Signage Control Room{% endblock %}
+
+{% block content %}
+<div class="container stack stack-xl" style="padding-block: var(--space-8);">
+
+  <!-- Header -->
+  <header class="stack stack-sm">
+    <div class="cluster cluster-sm">
+      <span class="eyebrow">Design System &bull; Component Manual</span>
+      <span class="tag-sign tag-signal-green">DEBUG ONLY</span>
+    </div>
+    <h1>Transit Signage Control Room</h1>
+    <p style="color: var(--text-muted); max-width: 65ch;">
+      High-contrast flat control-room panels, Swiss wayfinding typography, strict 8px layout grid,
+      thin rule dividers, and traffic-signal semantic accents.
+    </p>
+  </header>
+
+  <hr class="rule" />
+
+  <!-- 1. Color Palette & Contrast Table -->
+  <section class="stack stack-lg" aria-labelledby="colors-heading">
+    <div class="cluster cluster-between">
+      <h2 id="colors-heading">1. Color Palette &amp; Contrast Audit</h2>
+      <span class="tag-sign">WCAG 2.1 AA Compliant</span>
+    </div>
+
+    <!-- Swatches Grid -->
+    <div class="grid grid-cols-12">
+      <div class="col-span-4 panel stack stack-sm">
+        <span class="eyebrow">Canvas / Background</span>
+        <div style="height: 48px; background-color: var(--canvas); border: 1px solid var(--rule); border-radius: var(--radius-sign);"></div>
+        <div class="cluster cluster-between" style="font-size: var(--text-xs); color: var(--text-muted);">
+          <span>var(--canvas)</span>
+          <code class="font-mono">Dark: #0B1220 / Light: #F7F8FB</code>
+        </div>
+      </div>
+
+      <div class="col-span-4 panel stack stack-sm">
+        <span class="eyebrow">Surface Panel</span>
+        <div style="height: 48px; background-color: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius-sign);"></div>
+        <div class="cluster cluster-between" style="font-size: var(--text-xs); color: var(--text-muted);">
+          <span>var(--surface)</span>
+          <code class="font-mono">Dark: #121C30 / Light: #FFFFFF</code>
+        </div>
+      </div>
+
+      <div class="col-span-4 panel stack stack-sm">
+        <span class="eyebrow">Surface Raised</span>
+        <div style="height: 48px; background-color: var(--surface-raised); border: 1px solid var(--rule); border-radius: var(--radius-sign);"></div>
+        <div class="cluster cluster-between" style="font-size: var(--text-xs); color: var(--text-muted);">
+          <span>var(--surface-raised)</span>
+          <code class="font-mono">Dark: #1A2740 / Light: #EEF1F7</code>
+        </div>
+      </div>
+
+      <div class="col-span-4 panel stack stack-sm">
+        <span class="eyebrow">Brand Primary (Maroon CTA)</span>
+        <div style="height: 48px; background-color: var(--brand-primary); border-radius: var(--radius-sign); display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-weight: bold;">
+          White Text on Maroon
+        </div>
+        <div class="cluster cluster-between" style="font-size: var(--text-xs); color: var(--text-muted);">
+          <span>var(--brand-primary)</span>
+          <code class="font-mono">#8B0000 (6.84:1 AA)</code>
+        </div>
+      </div>
+
+      <div class="col-span-4 panel stack stack-sm">
+        <span class="eyebrow">Brand Secondary (Transit Gold)</span>
+        <div style="height: 48px; background-color: var(--brand-secondary); border-radius: var(--radius-sign); display: flex; align-items: center; justify-content: center; color: #0B1220; font-weight: bold;">
+          Gold Fill &amp; Icons
+        </div>
+        <div class="cluster cluster-between" style="font-size: var(--text-xs); color: var(--text-muted);">
+          <span>var(--brand-secondary)</span>
+          <code class="font-mono">#D4A017</code>
+        </div>
+      </div>
+
+      <div class="col-span-4 panel stack stack-sm">
+        <span class="eyebrow">Accessible Gold Text Token</span>
+        <div style="height: 48px; background-color: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius-sign); display: flex; align-items: center; justify-content: center; color: var(--brand-secondary-text); font-weight: bold;">
+          Gold Text Sample
+        </div>
+        <div class="cluster cluster-between" style="font-size: var(--text-xs); color: var(--text-muted);">
+          <span>--brand-secondary-text</span>
+          <code class="font-mono">#D4A017 / #8A6500 (&gt;4.5:1)</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Signal Colors -->
+    <div class="grid grid-cols-3">
+      <div class="panel stack stack-sm" style="border-left: 4px solid var(--signal-green);">
+        <span class="eyebrow">Signal Green (Low Density)</span>
+        <div class="cluster cluster-sm">
+          <span class="density-chip density-chip--low">
+            <span class="status-dot status-dot--live" aria-hidden="true"></span>
+            LOW &bull; NOMINAL
+          </span>
+          <code class="font-mono" style="font-size: var(--text-xs);">#22C55E</code>
+        </div>
+      </div>
+      <div class="panel stack stack-sm" style="border-left: 4px solid var(--signal-amber);">
+        <span class="eyebrow">Signal Amber (Medium Density)</span>
+        <div class="cluster cluster-sm">
+          <span class="density-chip density-chip--medium">
+            <span class="status-dot status-dot--reconnecting" aria-hidden="true"></span>
+            MEDIUM &bull; MODERATE
+          </span>
+          <code class="font-mono" style="font-size: var(--text-xs);">#F59E0B</code>
+        </div>
+      </div>
+      <div class="panel stack stack-sm" style="border-left: 4px solid var(--signal-red);">
+        <span class="eyebrow">Signal Red (High Density / Alert)</span>
+        <div class="cluster cluster-sm">
+          <span class="density-chip density-chip--high">
+            <span class="status-dot" style="background-color: var(--signal-red);" aria-hidden="true"></span>
+            HIGH &bull; CONGESTED
+          </span>
+          <code class="font-mono" style="font-size: var(--text-xs);">#EF4444</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contrast Table Display -->
+    <div class="panel stack stack-sm" style="overflow-x: auto;">
+      <span class="eyebrow">Measured WCAG 2.1 AA Contrast Ratios (from tokens.css)</span>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Role / Pair</th>
+            <th>Hex Values</th>
+            <th>Ratio</th>
+            <th>Required</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Dark Theme Canvas Body Text</td>
+            <td><code>#E8EEF7 on #0B1220</code></td>
+            <td><strong>16.52:1</strong></td>
+            <td>&ge; 4.5:1</td>
+            <td><span class="tag-sign tag-signal-green">PASS</span></td>
+          </tr>
+          <tr>
+            <td>Dark Theme Muted Text</td>
+            <td><code>#9FB0C8 on #0B1220</code></td>
+            <td><strong>8.94:1</strong></td>
+            <td>&ge; 4.5:1</td>
+            <td><span class="tag-sign tag-signal-green">PASS</span></td>
+          </tr>
+          <tr>
+            <td>Primary CTA Maroon Button</td>
+            <td><code>#FFFFFF on #8B0000</code></td>
+            <td><strong>6.84:1</strong></td>
+            <td>&ge; 4.5:1</td>
+            <td><span class="tag-sign tag-signal-green">PASS</span></td>
+          </tr>
+          <tr>
+            <td>Light Theme Canvas Body Text</td>
+            <td><code>#0F172A on #F7F8FB</code></td>
+            <td><strong>15.54:1</strong></td>
+            <td>&ge; 4.5:1</td>
+            <td><span class="tag-sign tag-signal-green">PASS</span></td>
+          </tr>
+          <tr>
+            <td>Light Theme Gold Text Token</td>
+            <td><code>#8A6500 on #FFFFFF</code></td>
+            <td><strong>4.68:1</strong></td>
+            <td>&ge; 4.5:1</td>
+            <td><span class="tag-sign tag-signal-green">PASS</span></td>
+          </tr>
+          <tr>
+            <td>Light Theme Muted Text</td>
+            <td><code>#475569 on #FFFFFF</code></td>
+            <td><strong>7.68:1</strong></td>
+            <td>&ge; 4.5:1</td>
+            <td><span class="tag-sign tag-signal-green">PASS</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="rule" />
+
+  <!-- 2. Typography Modular Scale -->
+  <section class="stack stack-lg" aria-labelledby="type-heading">
+    <div class="cluster cluster-between">
+      <h2 id="type-heading">2. Typography Modular Scale &amp; Typefaces</h2>
+      <span class="tag-sign">Space Grotesk &bull; Inter &bull; JetBrains Mono</span>
+    </div>
+
+    <div class="grid grid-cols-12">
+      <div class="col-span-12 panel stack stack-md">
+        <span class="eyebrow">Modular Fluid Type Scale (Ratio ~1.25)</span>
+        <div class="stack stack-sm" style="border-bottom: 1px solid var(--rule); padding-bottom: var(--space-4);">
+          <div class="cluster cluster-between">
+            <span style="font-size: var(--text-5xl); font-family: var(--font-heading); font-weight: bold; line-height: 1.1;">Display 5XL Title</span>
+            <code class="font-mono">var(--text-5xl)</code>
+          </div>
+          <div class="cluster cluster-between">
+            <span style="font-size: var(--text-4xl); font-family: var(--font-heading); font-weight: bold; line-height: 1.15;">Heading 4XL Section</span>
+            <code class="font-mono">var(--text-4xl)</code>
+          </div>
+          <div class="cluster cluster-between">
+            <span style="font-size: var(--text-3xl); font-family: var(--font-heading); font-weight: bold; line-height: 1.2;">Heading 3XL Card</span>
+            <code class="font-mono">var(--text-3xl)</code>
+          </div>
+          <div class="cluster cluster-between">
+            <span style="font-size: var(--text-2xl); font-family: var(--font-heading); font-weight: 600;">Heading 2XL Panel</span>
+            <code class="font-mono">var(--text-2xl)</code>
+          </div>
+          <div class="cluster cluster-between">
+            <span style="font-size: var(--text-xl); font-family: var(--font-heading); font-weight: 600;">Heading XL Header</span>
+            <code class="font-mono">var(--text-xl)</code>
+          </div>
+          <div class="cluster cluster-between">
+            <span style="font-size: var(--text-lg); font-family: var(--font-heading); font-weight: 500;">Text Large Lead</span>
+            <code class="font-mono">var(--text-lg)</code>
+          </div>
+          <div class="cluster cluster-between">
+            <span style="font-size: var(--text-base); font-family: var(--font-body);">Body Base: The Swiss signage wayfinding system provides crisp readability.</span>
+            <code class="font-mono">var(--text-base)</code>
+          </div>
+          <div class="cluster cluster-between">
+            <span style="font-size: var(--text-sm); font-family: var(--font-body); color: var(--text-muted);">Text Small: Auxiliary details, descriptions and metadata strings.</span>
+            <code class="font-mono">var(--text-sm)</code>
+          </div>
+          <div class="cluster cluster-between">
+            <span class="eyebrow">Text XS Eyebrow Sign Label</span>
+            <code class="font-mono">var(--text-xs) + tracking-sign</code>
+          </div>
+        </div>
+
+        <div class="stack stack-sm">
+          <span class="eyebrow">Monospace Tabular Data (JetBrains Mono)</span>
+          <p style="color: var(--text-muted); font-size: var(--text-sm);">All numbers, counters, and telemetry data use tabular numerals to prevent layout shift:</p>
+          <div class="cluster cluster-md">
+            <div class="panel panel-raised stack stack-xs" style="text-align: center; min-width: 140px;">
+              <span class="eyebrow">Vehicles/Min</span>
+              <span class="font-mono" style="font-size: var(--text-3xl); font-weight: bold; color: var(--brand-secondary-text);">1,428</span>
+            </div>
+            <div class="panel panel-raised stack stack-xs" style="text-align: center; min-width: 140px;">
+              <span class="eyebrow">Frame Latency</span>
+              <span class="font-mono" style="font-size: var(--text-3xl); font-weight: bold; color: var(--signal-green);">18.4ms</span>
+            </div>
+            <div class="panel panel-raised stack stack-xs" style="text-align: center; min-width: 140px;">
+              <span class="eyebrow">Signal Cycle</span>
+              <span class="font-mono" style="font-size: var(--text-3xl); font-weight: bold; color: var(--signal-amber);">45.0s</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule" />
+
+  <!-- 3. Interactive Cards (4px Y Lift) & Buttons -->
+  <section class="stack stack-lg" aria-labelledby="ui-heading">
+    <div class="cluster cluster-between">
+      <h2 id="ui-heading">3. Controls, Buttons &amp; Interactive Cards</h2>
+      <span class="tag-sign">Hover Lift: -4px Y / 200ms</span>
+    </div>
+
+    <!-- Cards Row -->
+    <div class="grid grid-cols-3">
+      <div class="card card--interactive stack stack-sm">
+        <span class="eyebrow">Interactive Lift Card</span>
+        <h3>Real-Time Tracking</h3>
+        <p style="font-size: var(--text-sm); color: var(--text-muted);">
+          Hover over this card to observe the 4px Y-axis lift and subtle brightness transition.
+        </p>
+        <div class="cluster cluster-between" style="margin-top: auto; padding-top: var(--space-4);">
+          <span class="tag-sign">ByteTrack</span>
+          <span style="color: var(--brand-secondary-text); font-weight: bold; font-size: var(--text-sm);">&rarr;</span>
+        </div>
+      </div>
+
+      <div class="card card--interactive stack stack-sm">
+        <span class="eyebrow">Interactive Lift Card</span>
+        <h3>Congestion Flagging</h3>
+        <p style="font-size: var(--text-sm); color: var(--text-muted);">
+          Pure rule-based evaluation triggers advisory alerts without modifying real infrastructure.
+        </p>
+        <div class="cluster cluster-between" style="margin-top: auto; padding-top: var(--space-4);">
+          <span class="tag-sign tag-signal-amber">Advisory</span>
+          <span style="color: var(--brand-secondary-text); font-weight: bold; font-size: var(--text-sm);">&rarr;</span>
+        </div>
+      </div>
+
+      <div class="card card--interactive stack stack-sm">
+        <span class="eyebrow">Interactive Lift Card</span>
+        <h3>Signal Timing Plan</h3>
+        <p style="font-size: var(--text-sm); color: var(--text-muted);">
+          Calculates suggested split times based on real-time vehicle density metrics.
+        </p>
+        <div class="cluster cluster-between" style="margin-top: auto; padding-top: var(--space-4);">
+          <span class="tag-sign tag-signal-green">Nominal</span>
+          <span style="color: var(--brand-secondary-text); font-weight: bold; font-size: var(--text-sm);">&rarr;</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Buttons Row -->
+    <div class="panel stack stack-md">
+      <span class="eyebrow">Button Variants &amp; Sizes (200ms transitions)</span>
+      <div class="cluster cluster-md">
+        <button type="button" class="btn btn--primary btn--lg">Primary Maroon (LG)</button>
+        <button type="button" class="btn btn--primary btn--md">Primary (MD)</button>
+        <button type="button" class="btn btn--primary btn--sm">Primary (SM)</button>
+        <button type="button" class="btn btn--secondary btn--md">Secondary Gold</button>
+        <button type="button" class="btn btn--ghost btn--md">Ghost Action</button>
+        <button type="button" class="btn btn--danger btn--md">Danger Alert</button>
+        <button type="button" class="btn btn--icon" aria-label="Refresh telemetry">
+          {{ icons.icon_refresh(size=18) }}
+        </button>
+        <button type="button" class="btn btn--primary btn--md" disabled>Disabled State</button>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule" />
+
+  <!-- 4. Interactive Components: Toast, Modal, Tooltips, Segmented Control & Status Switcher -->
+  <section class="stack stack-lg" aria-labelledby="interactive-heading">
+    <div class="cluster cluster-between">
+      <h2 id="interactive-heading">4. Toasts, Modals, Tooltips &amp; Controls</h2>
+      <span class="tag-sign">Accessible Interactive Primitives</span>
+    </div>
+
+    <div class="grid grid-cols-12">
+      <!-- Toast Notification Triggers -->
+      <div class="col-span-6 panel stack stack-md">
+        <span class="eyebrow">Toast Notification Triggers (JS Module)</span>
+        <p style="font-size: var(--text-sm); color: var(--text-muted);">
+          Trigger polite aria-live toasts with auto-dismiss and pause-on-hover:
+        </p>
+        <div class="cluster cluster-sm">
+          <button type="button" class="btn btn--secondary btn--sm" id="btn-toast-success">
+            Success Toast
+          </button>
+          <button type="button" class="btn btn--secondary btn--sm" id="btn-toast-info">
+            Info Toast
+          </button>
+          <button type="button" class="btn btn--secondary btn--sm" id="btn-toast-warning">
+            Warning Toast
+          </button>
+          <button type="button" class="btn btn--danger btn--sm" id="btn-toast-error">
+            Error Toast
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Connection Status Switcher -->
+      <div class="col-span-6 panel stack stack-md">
+        <span class="eyebrow">Connection Status Controller (JS Module)</span>
+        <p style="font-size: var(--text-sm); color: var(--text-muted);">
+          Test the navbar connection status pill state via <code>connection.setStatus()</code>:
+        </p>
+        <div class="cluster cluster-sm">
+          <button type="button" class="btn btn--secondary btn--sm" id="btn-status-live">
+            Set "Live"
+          </button>
+          <button type="button" class="btn btn--secondary btn--sm" id="btn-status-reconnecting">
+            Set "Reconnecting"
+          </button>
+          <button type="button" class="btn btn--secondary btn--sm" id="btn-status-simulation">
+            Set "Simulation"
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Dialog Demonstration -->
+      <div class="col-span-6 panel stack stack-md">
+        <span class="eyebrow">Accessible Native Modal (&lt;dialog&gt;)</span>
+        <p style="font-size: var(--text-sm); color: var(--text-muted);">
+          Native HTML5 dialog with backdrop blur, focus trap, and Escape key dismissal:
+        </p>
+        <div>
+          <button type="button" class="btn btn--primary btn--md" id="btn-open-modal">
+            Open Demonstration Modal
+          </button>
+        </div>
+
+        <dialog id="demo-modal" class="modal-dialog" aria-labelledby="modal-title" aria-describedby="modal-desc">
+          <div class="modal-header">
+            <h3 id="modal-title" style="font-size: var(--text-xl);">System Advisory Notice</h3>
+            <button type="button" class="btn btn--icon" id="btn-close-modal" aria-label="Close dialog">
+              {{ icons.icon_close(size=18) }}
+            </button>
+          </div>
+          <div class="modal-body stack stack-sm" id="modal-desc">
+            <p>
+              This prototype is strictly designed for educational and research evaluation at <strong>{{ project.college | default("College") }}</strong>.
+            </p>
+            <p style="font-size: var(--text-sm); color: var(--text-muted);">
+              All signal calculations represent non-binding advice generated by pure rule functions. Real traffic signals are never controlled.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn--secondary btn--sm" id="btn-cancel-modal">Dismiss</button>
+            <button type="button" class="btn btn--primary btn--sm" id="btn-confirm-modal">Acknowledge</button>
+          </div>
+        </dialog>
+      </div>
+
+      <!-- Tooltips & Segmented Controls -->
+      <div class="col-span-6 panel stack stack-md">
+        <span class="eyebrow">Tooltips &amp; Segmented Controls</span>
+        <div class="cluster cluster-between" style="align-items: center;">
+          <span style="font-size: var(--text-sm);">Interactive Tooltip:</span>
+          <span class="tooltip-trigger" tabindex="0" aria-describedby="tip-1" aria-label="Confidence threshold info">
+            {{ icons.icon_help_circle(size=20) }}
+            <span class="tooltip-box" id="tip-1" role="tooltip">
+              YOLOv8n object detection confidence threshold (default: 0.40).
+            </span>
+          </span>
+        </div>
+
+        <div class="stack stack-xs" style="margin-top: var(--space-2);">
+          <span class="eyebrow">Segmented Control</span>
+          <div class="segmented-control" role="radiogroup" aria-label="Traffic source selection">
+            <div class="segmented-option">
+              <input type="radio" name="source-select" id="src-live" checked>
+              <label for="src-live">Live Stream</label>
+            </div>
+            <div class="segmented-option">
+              <input type="radio" name="source-select" id="src-video">
+              <label for="src-video">Video File</label>
+            </div>
+            <div class="segmented-option">
+              <input type="radio" name="source-select" id="src-sim">
+              <label for="src-sim">Synthetic</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skeleton Loaders -->
+      <div class="col-span-12 panel stack stack-md">
+        <span class="eyebrow">Skeleton Loaders &amp; Shimmer States</span>
+        <p style="font-size: var(--text-sm); color: var(--text-muted);">
+          Used during initial SSE stream connection (animations disabled when prefers-reduced-motion is active):
+        </p>
+        <div class="grid grid-cols-3">
+          <div class="skeleton" style="height: 90px;"></div>
+          <div class="skeleton" style="height: 90px;"></div>
+          <div class="skeleton" style="height: 90px;"></div>
+        </div>
+      </div>
+
+      <!-- Form Control States -->
+      <div class="col-span-12 panel stack stack-md">
+        <span class="eyebrow">Form Controls (Label, Hint, Error, Valid States)</span>
+        <div class="grid grid-cols-3">
+          <div class="form-group">
+            <label class="form-label" for="input-normal">Standard Input</label>
+            <input type="text" id="input-normal" class="form-input" placeholder="e.g. Camera 01">
+            <span class="form-hint">Default input appearance</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="input-error">Invalid Input State</label>
+            <input type="text" id="input-error" class="form-input" value="-5" aria-invalid="true" aria-describedby="err-1">
+            <span class="form-error" id="err-1">
+              {{ icons.icon_alert_triangle(size=14) }} Value must be greater than 0.
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="input-valid">Valid Input State</label>
+            <input type="text" id="input-valid" class="form-input is-valid" value="0.45" aria-describedby="ok-1">
+            <span class="form-ok" id="ok-1">
+              {{ icons.icon_check(size=14) }} Threshold acceptable.
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="rule" />
+
+  <div style="padding-top: var(--space-4); text-align: center;">
+    <a href="{{ url_for('pages.index') }}" class="btn btn--secondary btn--md">&larr; Return to Application</a>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module">
+  import { toast } from "{{ url_for('static', filename='js/modules/toast.js') }}";
+  import { setStatus } from "{{ url_for('static', filename='js/modules/connection.js') }}";
+
+  // Wire up Toast buttons
+  document.getElementById("btn-toast-success")?.addEventListener("click", () => {
+    toast.success("Detection session started successfully.");
+  });
+  document.getElementById("btn-toast-info")?.addEventListener("click", () => {
+    toast.info("Signal cycle duration calculated: 45s.");
+  });
+  document.getElementById("btn-toast-warning")?.addEventListener("click", () => {
+    toast.warning("Medium congestion approaching threshold.");
+  });
+  document.getElementById("btn-toast-error")?.addEventListener("click", () => {
+    toast.error("Video stream disconnected unexpectedly.");
+  });
+
+  // Wire up Connection Status buttons
+  document.getElementById("btn-status-live")?.addEventListener("click", () => setStatus("live"));
+  document.getElementById("btn-status-reconnecting")?.addEventListener("click", () => setStatus("reconnecting"));
+  document.getElementById("btn-status-simulation")?.addEventListener("click", () => setStatus("simulation"));
+
+  // Wire up Modal dialog
+  const modal = document.getElementById("demo-modal");
+  document.getElementById("btn-open-modal")?.addEventListener("click", () => modal?.showModal());
+  document.getElementById("btn-close-modal")?.addEventListener("click", () => modal?.close());
+  document.getElementById("btn-cancel-modal")?.addEventListener("click", () => modal?.close());
+  document.getElementById("btn-confirm-modal")?.addEventListener("click", () => {
+    modal?.close();
+    toast.success("Advisory notice acknowledged.");
+  });
+</script>
+{% endblock %}

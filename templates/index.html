@@ -1,0 +1,891 @@
+{% extends "base.html" %}
+{#
+  templates/index.html – Landing page for the Smart Traffic Monitoring System.
+  Style: "Transit Signage Control Room"
+
+  Section Order (Strict):
+    1. Hero Section (Split Screen: Live Simulated Intersection + Direct CTAs)
+    2. Technology Strip (id="built-with": open, well-documented tool marks)
+    3. Problem Statement (id="problem": honest impact copy with 3 tiles)
+    4. How It Works (id="how-it-works": 3-step numbered horizontal timeline)
+    5. Feature Grid (id="features": 6 core capabilities with staggered reveal)
+    6. Signal Timing Estimator (id="estimator": interactive dynamic Webster delay zone)
+    7. Who It Helps (id="who-it-helps": 4 illustrative stakeholder perspectives)
+    8. Tech Stack & Hardware (id="tech-stack": final decisions panel & model note)
+    9. FAQ Accordion (id="faq": accessible ARIA disclosure with honest answers)
+    10. Final Conversion Banner (High-contrast maroon section with dual CTAs)
+#}
+
+{% block title %}Smart Traffic Monitoring System — See your intersection think{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<!-- ================================================================ -->
+<!-- 1. Hero Section (Split Screen: Content Left, Visual Right)        -->
+<!-- ================================================================ -->
+<section class="hero-section" aria-labelledby="hero-title">
+  <div class="container hero-grid">
+
+    <!-- Left Split: Hero Content & CTAs -->
+    <div class="hero-content">
+
+      <!-- Eyebrow Signage Tag -->
+      <div class="hero-eyebrow">
+        <span class="tag-sign" style="border-color: var(--brand-secondary); color: var(--brand-secondary-text); background-color: rgba(212, 160, 23, 0.1);">
+          {{ project.course | default("IDEA Lab-II") }} &bull; {{ project.theme | default("Urban System") }}
+        </span>
+      </div>
+
+      <!-- Single Primary H1 on Page -->
+      <h1 class="hero-title" id="hero-title">
+        See your intersection<br>
+        <span class="hero-title-accent">think.</span>
+      </h1>
+
+      <!-- Supporting Body Text -->
+      <p class="hero-desc">
+        A camera-assisted traffic monitoring prototype that counts vehicles, classifies density, flags congestion and suggests smarter signal timing.
+      </p>
+
+      <!-- Side-by-Side CTAs -->
+      <div class="hero-actions" role="group" aria-label="Primary actions">
+        <a href="{{ url_for('pages.dashboard') }}" class="btn btn--primary btn--lg" id="cta-launch-dashboard">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          Launch Live Dashboard
+        </a>
+        <a href="{{ url_for('pages.about') }}" class="btn btn--secondary btn--lg" id="cta-about">
+          Read the Project Overview
+        </a>
+      </div>
+
+      <!-- Three Sign-Style Stat Chips -->
+      <div class="hero-chips" role="list" aria-label="System capabilities">
+        <div class="hero-chip" role="listitem">
+          <span class="hero-chip-dot" aria-hidden="true"></span>
+          Real-time counting
+        </div>
+        <div class="hero-chip" role="listitem">
+          <span class="hero-chip-dot" aria-hidden="true"></span>
+          Low / Medium / High density
+        </div>
+        <div class="hero-chip" role="listitem">
+          <span class="hero-chip-dot" aria-hidden="true"></span>
+          Rule-based signal suggestion
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Split: Animated 4-Way Intersection SVG -->
+    <div class="hero-visual" aria-hidden="false">
+
+      <!-- Simulated Density HUD Overlay -->
+      <div class="sim-hud">
+        <div class="sim-hud-badge">
+          <span class="badge badge--simulated">SIMULATED</span>
+        </div>
+        <div class="sim-hud-gauge" aria-live="polite">
+          <span style="color: var(--text-muted);">VEHICLES:</span>
+          <strong id="sim-count-value" class="font-mono">8</strong>
+          <span class="rule-vertical" style="height: 12px;"></span>
+          <span style="color: var(--text-muted);">DENSITY:</span>
+          <strong id="sim-density-level" style="color: var(--signal-amber);">MED</strong>
+        </div>
+      </div>
+
+      <!-- Inline Four-Way Intersection SVG -->
+      <svg class="intersection-svg" viewBox="0 0 500 500" width="500" height="500" role="img" aria-label="Top-down animated architectural view of an urban 4-way intersection with moving vehicles and cycling traffic signals">
+        <title>Animated 4-Way Intersection Control Simulation</title>
+        <defs>
+          <pattern id="grid-pattern" width="25" height="25" patternUnits="userSpaceOnUse">
+            <path d="M 25 0 L 0 0 0 25" fill="none" stroke="var(--rule)" stroke-width="0.5" opacity="0.4"/>
+          </pattern>
+
+          <g id="car-body">
+            <rect x="-10" y="-18" width="20" height="36" rx="4" fill="#3B82F6" stroke="#1D4ED8" stroke-width="1"/>
+            <rect x="-8" y="-12" width="16" height="8" rx="2" fill="#1E293B"/>
+            <rect x="-8" y="4" width="16" height="6" rx="1" fill="#1E293B"/>
+            <circle cx="-7" cy="-16" r="1.5" fill="#FEF08A"/>
+            <circle cx="7" cy="-16" r="1.5" fill="#FEF08A"/>
+            <circle cx="-7" cy="16" r="1.5" fill="#EF4444"/>
+            <circle cx="7" cy="16" r="1.5" fill="#EF4444"/>
+          </g>
+
+          <g id="car-gold">
+            <rect x="-10" y="-18" width="20" height="36" rx="4" fill="#D4A017" stroke="#A17508" stroke-width="1"/>
+            <rect x="-8" y="-12" width="16" height="8" rx="2" fill="#1E293B"/>
+            <rect x="-8" y="4" width="16" height="6" rx="1" fill="#1E293B"/>
+            <circle cx="-7" cy="-16" r="1.5" fill="#FFFFFF"/>
+            <circle cx="7" cy="-16" r="1.5" fill="#FFFFFF"/>
+            <circle cx="-7" cy="16" r="1.5" fill="#EF4444"/>
+            <circle cx="7" cy="16" r="1.5" fill="#EF4444"/>
+          </g>
+
+          <g id="bus-body">
+            <rect x="-13" y="-30" width="26" height="60" rx="4" fill="#0EA5E9" stroke="#0284C7" stroke-width="1.2"/>
+            <rect x="-10" y="-26" width="20" height="8" rx="1" fill="#0F172A"/>
+            <rect x="-10" y="-14" width="20" height="6" rx="1" fill="#0F172A"/>
+            <rect x="-10" y="-4" width="20" height="6" rx="1" fill="#0F172A"/>
+            <rect x="-10" y="6" width="20" height="6" rx="1" fill="#0F172A"/>
+            <rect x="-10" y="18" width="20" height="8" rx="1" fill="#0F172A"/>
+            <circle cx="-9" cy="-28" r="2" fill="#FEF08A"/>
+            <circle cx="9" cy="-28" r="2" fill="#FEF08A"/>
+            <circle cx="-9" cy="28" r="2" fill="#EF4444"/>
+            <circle cx="9" cy="28" r="2" fill="#EF4444"/>
+          </g>
+
+          <g id="moto-body">
+            <rect x="-4" y="-10" width="8" height="20" rx="3" fill="#EF4444" stroke="#B91C1C" stroke-width="1"/>
+            <circle cx="0" cy="0" r="3.5" fill="#E2E8F0"/>
+            <circle cx="0" cy="-8" r="1.2" fill="#FEF08A"/>
+          </g>
+        </defs>
+
+        <rect width="500" height="500" fill="var(--canvas)"/>
+        <rect width="500" height="500" fill="url(#grid-pattern)"/>
+
+        <!-- Roads -->
+        <rect x="190" y="0" width="120" height="500" fill="var(--surface-raised)"/>
+        <rect x="0" y="190" width="500" height="120" fill="var(--surface-raised)"/>
+
+        <!-- Curbs -->
+        <path d="M 0 190 L 190 190 L 190 0 M 310 0 L 310 190 L 500 190 M 500 310 L 310 310 L 310 500 M 190 500 L 190 310 L 0 310"
+              fill="none" stroke="var(--rule)" stroke-width="2"/>
+
+        <!-- Crosswalks -->
+        <g stroke="var(--rule)" stroke-width="3" opacity="0.8">
+          <line x1="200" y1="175" x2="200" y2="185"/><line x1="220" y1="175" x2="220" y2="185"/><line x1="240" y1="175" x2="240" y2="185"/><line x1="260" y1="175" x2="260" y2="185"/><line x1="280" y1="175" x2="280" y2="185"/><line x1="300" y1="175" x2="300" y2="185"/>
+          <line x1="200" y1="315" x2="200" y2="325"/><line x1="220" y1="315" x2="220" y2="325"/><line x1="240" y1="315" x2="240" y2="325"/><line x1="260" y1="315" x2="260" y2="325"/><line x1="280" y1="315" x2="280" y2="325"/><line x1="300" y1="315" x2="300" y2="325"/>
+          <line x1="175" y1="200" x2="185" y2="200"/><line x1="175" y1="220" x2="185" y2="220"/><line x1="175" y1="240" x2="185" y2="240"/><line x1="175" y1="260" x2="185" y2="260"/><line x1="175" y1="280" x2="185" y2="280"/><line x1="175" y1="300" x2="185" y2="300"/>
+          <line x1="315" y1="200" x2="325" y2="200"/><line x1="315" y1="220" x2="325" y2="220"/><line x1="315" y1="240" x2="325" y2="240"/><line x1="315" y1="260" x2="325" y2="260"/><line x1="315" y1="280" x2="325" y2="280"/><line x1="315" y1="300" x2="325" y2="300"/>
+        </g>
+
+        <!-- Center Dashed Lines -->
+        <line x1="250" y1="0" x2="250" y2="170" stroke="var(--brand-secondary)" stroke-width="1.5" stroke-dasharray="8 8" opacity="0.6"/>
+        <line x1="250" y1="330" x2="250" y2="500" stroke="var(--brand-secondary)" stroke-width="1.5" stroke-dasharray="8 8" opacity="0.6"/>
+        <line x1="0" y1="250" x2="170" y2="250" stroke="var(--brand-secondary)" stroke-width="1.5" stroke-dasharray="8 8" opacity="0.6"/>
+        <line x1="330" y1="250" x2="500" y2="250" stroke="var(--brand-secondary)" stroke-width="1.5" stroke-dasharray="8 8" opacity="0.6"/>
+
+        <!-- Radar Scan -->
+        <circle cx="250" cy="250" r="54" fill="none" stroke="var(--brand-secondary)" stroke-width="1" stroke-dasharray="4 4" opacity="0.4" class="anim-radar"/>
+        <circle cx="250" cy="250" r="28" fill="rgba(212, 160, 23, 0.05)" stroke="var(--brand-secondary)" stroke-width="0.75"/>
+
+        <!-- Traffic Signals -->
+        <g transform="translate(322, 140)"><rect x="0" y="0" width="12" height="34" rx="2" fill="#0B1220" stroke="var(--rule)" stroke-width="1"/><circle cx="6" cy="7" r="3.5" class="anim-ns-red"/><circle cx="6" cy="17" r="3.5" class="anim-ns-amber"/><circle cx="6" cy="27" r="3.5" class="anim-ns-green"/></g>
+        <g transform="translate(166, 325)"><rect x="0" y="0" width="12" height="34" rx="2" fill="#0B1220" stroke="var(--rule)" stroke-width="1"/><circle cx="6" cy="7" r="3.5" class="anim-ns-red"/><circle cx="6" cy="17" r="3.5" class="anim-ns-amber"/><circle cx="6" cy="27" r="3.5" class="anim-ns-green"/></g>
+        <g transform="translate(140, 166)"><rect x="0" y="0" width="34" height="12" rx="2" fill="#0B1220" stroke="var(--rule)" stroke-width="1"/><circle cx="7" cy="6" r="3.5" class="anim-ew-red"/><circle cx="17" cy="6" r="3.5" class="anim-ew-amber"/><circle cx="27" cy="6" r="3.5" class="anim-ew-green"/></g>
+        <g transform="translate(325, 322)"><rect x="0" y="0" width="34" height="12" rx="2" fill="#0B1220" stroke="var(--rule)" stroke-width="1"/><circle cx="7" cy="6" r="3.5" class="anim-ew-red"/><circle cx="17" cy="6" r="3.5" class="anim-ew-amber"/><circle cx="27" cy="6" r="3.5" class="anim-ew-green"/></g>
+
+        <!-- Moving Vehicles -->
+        <g class="anim-veh-n1"><g transform="translate(280, 0)"><use href="#car-body"/></g></g>
+        <g class="anim-veh-n2"><g transform="translate(280, 0)"><use href="#car-gold"/></g></g>
+        <g class="anim-veh-s1"><g transform="translate(220, 0) rotate(180)"><use href="#car-body"/></g></g>
+        <g class="anim-bus-s"><g transform="translate(220, 0) rotate(180)"><use href="#bus-body"/></g></g>
+        <g class="anim-moto-e"><g transform="translate(0, 280) rotate(90)"><use href="#moto-body"/></g></g>
+        <g class="anim-veh-w1"><g transform="translate(0, 220) rotate(-90)"><use href="#car-gold"/></g></g>
+      </svg>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<!-- 2. Technology Strip (id="built-with")                             -->
+<!-- ================================================================ -->
+<section class="tech-strip" id="built-with" aria-labelledby="tech-heading">
+  <div class="container stack stack-sm" style="text-align: center;">
+    <h2 id="tech-heading" class="sr-only">Technologies Used</h2>
+    <p style="font-size: var(--text-xs); color: var(--text-muted); font-family: var(--font-heading); letter-spacing: var(--tracking-wide); text-transform: uppercase;">
+      Built with open, well-documented tools
+    </p>
+
+    <div class="tech-grid" role="list">
+      <div class="tech-item" role="listitem" tabindex="0"><span class="tech-mark">PY</span> Python 3.10+</div>
+      <div class="tech-item" role="listitem" tabindex="0"><span class="tech-mark">CV</span> OpenCV</div>
+      <div class="tech-item" role="listitem" tabindex="0"><span class="tech-mark">Y8</span> Ultralytics YOLOv8</div>
+      <div class="tech-item" role="listitem" tabindex="0"><span class="tech-mark">FL</span> Flask</div>
+      <div class="tech-item" role="listitem" tabindex="0"><span class="tech-mark">SQL</span> SQLite</div>
+      <div class="tech-item" role="listitem" tabindex="0"><span class="tech-mark">JS</span> Chart.js</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<!-- 3. Problem Statement Section (id="problem")                       -->
+<!-- ================================================================ -->
+<section class="problem-section" id="problem" aria-labelledby="problem-heading">
+  <div class="container problem-grid">
+    <div class="stack stack-md">
+      <span class="eyebrow">The Urban Challenge</span>
+      <h2 id="problem-heading" style="font-size: clamp(1.85rem, 3.5vw, 2.5rem); line-height: var(--leading-tight);">
+        Why static signals fail dynamic traffic.
+      </h2>
+      <p style="color: var(--text-muted); font-size: var(--text-base); line-height: var(--leading-relaxed);">
+        Many junctions use fixed-timer signals or manual police control with no real-time view of vehicle density, which can lead to long waiting times, wasted fuel and delayed emergency response.
+      </p>
+      <p style="color: var(--text); font-size: var(--text-base); font-weight: var(--font-weight-medium); border-left: 3px solid var(--brand-secondary); padding-left: var(--space-4);">
+        This prototype observes traffic patterns and shows, at a basic level, how live data could support better signal timing.
+      </p>
+    </div>
+
+    <div class="impact-tiles">
+      <div class="impact-tile">
+        <div class="impact-icon" aria-hidden="true">{{ icons.icon_clock(size=24) }}</div>
+        <div class="stack stack-xs">
+          <h3 style="font-size: var(--text-base); font-weight: var(--font-weight-bold);">Waiting time</h3>
+          <p style="font-size: var(--text-sm); color: var(--text-muted);">
+            Fixed timers allocate green phases to empty approaches while congested queues remain stranded.
+          </p>
+        </div>
+      </div>
+
+      <div class="impact-tile">
+        <div class="impact-icon" aria-hidden="true">{{ icons.icon_fuel(size=24) }}</div>
+        <div class="stack stack-xs">
+          <h3 style="font-size: var(--text-base); font-weight: var(--font-weight-bold);">Fuel use</h3>
+          <p style="font-size: var(--text-sm); color: var(--text-muted);">
+            Repeated stop-and-go idling at poorly synchronized signals significantly escalates urban fuel consumption.
+          </p>
+        </div>
+      </div>
+
+      <div class="impact-tile">
+        <div class="impact-icon" aria-hidden="true">{{ icons.icon_siren(size=24) }}</div>
+        <div class="stack stack-xs">
+          <h3 style="font-size: var(--text-base); font-weight: var(--font-weight-bold);">Emergency delays</h3>
+          <p style="font-size: var(--text-sm); color: var(--text-muted);">
+            Unmonitored junction bottlenecks obstruct transit priority and impede urgent first-responder routing.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<!-- 4. How It Works Section (id="how-it-works")                       -->
+<!-- ================================================================ -->
+<section class="how-section" id="how-it-works" aria-labelledby="how-heading">
+  <div class="container stack stack-xl">
+    <div class="stack stack-xs" style="text-align: center; max-width: 680px; margin-inline: auto;">
+      <span class="eyebrow">End-to-End Workflow</span>
+      <h2 id="how-heading" style="font-size: clamp(1.85rem, 3.5vw, 2.5rem); line-height: var(--leading-tight);">
+        How the system works
+      </h2>
+      <p style="color: var(--text-muted); font-size: var(--text-base);">
+        From video frame ingestion to real-time traffic signal optimization advice in three continuous steps.
+      </p>
+    </div>
+
+    <!-- 3-Step Horizontal Timeline -->
+    <div class="timeline-grid" role="list">
+
+      <!-- Step 1: Input -->
+      <article class="timeline-card reveal-item" role="listitem">
+        <div class="timeline-header">
+          <span class="timeline-step-badge">STEP 01</span>
+          <span class="tag-sign">Ingestion</span>
+        </div>
+        <h3 style="font-size: var(--text-lg); font-weight: var(--font-weight-bold);">Input stream</h3>
+        <p style="font-size: var(--text-sm); color: var(--text-muted); line-height: var(--leading-relaxed);">
+          Input: video file, bundled sample, webcam or simulation mode.
+        </p>
+      </article>
+
+      <!-- Step 2: AI Analysis -->
+      <article class="timeline-card reveal-item" role="listitem">
+        <div class="timeline-header">
+          <span class="timeline-step-badge">STEP 02</span>
+          <span class="tag-sign">Processing</span>
+        </div>
+        <h3 style="font-size: var(--text-lg); font-weight: var(--font-weight-bold);">AI analysis</h3>
+        <p style="font-size: var(--text-sm); color: var(--text-muted); line-height: var(--leading-relaxed);">
+          AI analysis: detection, tracking, counting, density and congestion logic.
+        </p>
+      </article>
+
+      <!-- Step 3: Output -->
+      <article class="timeline-card reveal-item" role="listitem">
+        <div class="timeline-header">
+          <span class="timeline-step-badge">STEP 03</span>
+          <span class="tag-sign">Advisory</span>
+        </div>
+        <h3 style="font-size: var(--text-lg); font-weight: var(--font-weight-bold);">Advisory output</h3>
+        <p style="font-size: var(--text-sm); color: var(--text-muted); line-height: var(--leading-relaxed);">
+          Output: live dashboard, alerts, signal suggestion, logged history.
+        </p>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<!-- 5. Feature Grid Section (id="features")                           -->
+<!-- ================================================================ -->
+<section class="features-section" id="features" aria-labelledby="features-heading">
+  <div class="container stack stack-xl">
+    <div class="stack stack-xs" style="text-align: center; max-width: 680px; margin-inline: auto;">
+      <span class="eyebrow">Core Capabilities</span>
+      <h2 class="section-heading" id="features-heading" style="margin-bottom: 0; font-size: clamp(1.85rem, 3.5vw, 2.5rem);">
+        What the system does
+      </h2>
+      <p style="color: var(--text-muted); font-size: var(--text-base);">
+        Pure algorithmic pipeline transforming camera input into structured traffic intelligence without proprietary dependencies.
+      </p>
+    </div>
+
+    <ul class="features-grid" role="list">
+      <li class="card card--interactive reveal-item stack stack-sm" role="listitem">
+        <div class="feature-card-icon" aria-hidden="true">{{ icons.icon_camera(size=22) }}</div>
+        <h3 class="feature-title" style="font-size: var(--text-lg); font-weight: var(--font-weight-bold);">Vehicle detection and counting</h3>
+        <p class="feature-desc" style="font-size: var(--text-sm); color: var(--text-muted); line-height: var(--leading-relaxed);">
+          YOLOv8n plus ByteTrack, each vehicle counted once as it crosses a virtual line.
+        </p>
+      </li>
+
+      <li class="card card--interactive reveal-item stack stack-sm" role="listitem">
+        <div class="feature-card-icon" aria-hidden="true">{{ icons.icon_grid(size=22) }}</div>
+        <h3 class="feature-title" style="font-size: var(--text-lg); font-weight: var(--font-weight-bold);">Density zones</h3>
+        <p class="feature-desc" style="font-size: var(--text-sm); color: var(--text-muted); line-height: var(--leading-relaxed);">
+          North/South/East/West zones classified Low, Medium or High.
+        </p>
+      </li>
+
+      <li class="card card--interactive reveal-item stack stack-sm" role="listitem">
+        <div class="feature-card-icon" aria-hidden="true">{{ icons.icon_bell(size=22) }}</div>
+        <h3 class="feature-title" style="font-size: var(--text-lg); font-weight: var(--font-weight-bold);">Congestion alerts</h3>
+        <p class="feature-desc" style="font-size: var(--text-sm); color: var(--text-muted); line-height: var(--leading-relaxed);">
+          Raised when a zone stays High for longer than a set number of seconds.
+        </p>
+      </li>
+
+      <li class="card card--interactive reveal-item stack stack-sm" role="listitem">
+        <div class="feature-card-icon" aria-hidden="true">{{ icons.icon_activity(size=22) }}</div>
+        <h3 class="feature-title" style="font-size: var(--text-lg); font-weight: var(--font-weight-bold);">Signal timing suggestion</h3>
+        <p class="feature-desc" style="font-size: var(--text-sm); color: var(--text-muted); line-height: var(--leading-relaxed);">
+          A rule-based suggestion; it never controls real hardware.
+        </p>
+      </li>
+
+      <li class="card card--interactive reveal-item stack stack-sm" role="listitem">
+        <div class="feature-card-icon" aria-hidden="true">{{ icons.icon_bar_chart(size=22) }}</div>
+        <h3 class="feature-title" style="font-size: var(--text-lg); font-weight: var(--font-weight-bold);">Pattern analytics</h3>
+        <p class="feature-desc" style="font-size: var(--text-sm); color: var(--text-muted); line-height: var(--leading-relaxed);">
+          Peak hours, history and CSV export.
+        </p>
+      </li>
+
+      <li class="card card--interactive reveal-item stack stack-sm" role="listitem">
+        <div class="feature-card-icon" aria-hidden="true">{{ icons.icon_shield(size=22) }}</div>
+        <h3 class="feature-title" style="font-size: var(--text-lg); font-weight: var(--font-weight-bold);">Privacy-first</h3>
+        <p class="feature-desc" style="font-size: var(--text-sm); color: var(--text-muted); line-height: var(--leading-relaxed);">
+          No number plates, no faces, no saved frames.
+        </p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<!-- 6. Signal Timing Estimator UI (id="estimator")                    -->
+<!-- ================================================================ -->
+<section class="estimator-section" id="estimator" aria-labelledby="estimator-heading">
+  <div class="container stack stack-xl">
+
+    <div class="cluster cluster-between" style="align-items: flex-end;">
+      <div class="stack stack-xs" style="max-width: 620px;">
+        <span class="eyebrow">Dynamic Component Zone &bull; Interactive Model</span>
+        <h2 id="estimator-heading" style="font-size: clamp(1.85rem, 3.5vw, 2.5rem); line-height: var(--leading-tight); margin-bottom: 0;">
+          Signal Timing &amp; Delay Estimator
+        </h2>
+        <p style="color: var(--text-muted); font-size: var(--text-sm);">
+          Simulate how vehicle queue density influences green phase allocation and average vehicle delay compared to a static 30-second timer.
+        </p>
+      </div>
+
+      <!-- Assumptions & Model Limits Tooltip -->
+      <div class="tooltip-trigger" tabindex="0" aria-describedby="webster-tip" aria-label="Mathematical Model Assumptions">
+        <div class="tag-sign" style="border-color: var(--brand-secondary); color: var(--brand-secondary-text);">
+          {{ icons.icon_help_circle(size=14) }}
+          Model Assumptions &amp; Limits
+        </div>
+        <div class="tooltip-box" id="webster-tip" role="tooltip" style="max-width: 320px; white-space: normal;">
+          <strong>Webster's Uniform Delay Assumption:</strong>
+          Estimates delay specifically for the approach being served using <code>d = (C - g)² / (2C)</code>. Assumes uniform arrivals at low-to-moderate saturation. Ignores extra cross-traffic delay. Intended strictly as an illustrative estimate.
+        </div>
+      </div>
+    </div>
+
+    <!-- Estimator Interactive Split: Controls Left, Live Results Right -->
+    <div class="estimator-grid">
+
+      <!-- Controls Form -->
+      <div class="estimator-controls stack stack-md" role="region" aria-label="Estimator parameter inputs">
+
+        <!-- Vehicle Count Slider -->
+        <div class="slider-group">
+          <div class="slider-header">
+            <label class="form-label" for="est-vehicle-count" style="font-size: var(--text-base);">
+              Vehicles waiting on approach
+            </label>
+            <span class="slider-count-display font-mono" id="est-count-display">8</span>
+          </div>
+          <input type="range" id="est-vehicle-count" class="slider-input" min="0" max="40" value="8" step="1" aria-valuemin="0" aria-valuemax="40" aria-valuenow="8">
+          <div class="cluster cluster-between" style="font-size: var(--text-xs); color: var(--text-muted);">
+            <span>0 vehicles (Empty)</span>
+            <span>20 (Moderate)</span>
+            <span>40 (Max Capacity)</span>
+          </div>
+        </div>
+
+        <!-- Configuration Parameter Inputs -->
+        <div class="params-grid">
+          <div class="form-group">
+            <label class="form-label" for="est-base-green">
+              Base Green (s)
+            </label>
+            <input type="number" id="est-base-green" class="form-input" min="0" max="90" value="30" step="1">
+            <span class="form-hint">Nominal green allocation</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="est-k-factor">
+              k Coefficient
+            </label>
+            <input type="number" id="est-k-factor" class="form-input" min="0" max="5" value="1.5" step="0.1">
+            <span class="form-hint">Seconds added per vehicle</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="est-min-green">
+              Min Green (s)
+            </label>
+            <input type="number" id="est-min-green" class="form-input" min="5" max="60" value="10" step="1">
+            <span class="form-hint">Floor duration</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="est-max-green">
+              Max Green (s)
+            </label>
+            <input type="number" id="est-max-green" class="form-input" min="15" max="120" value="60" step="1">
+            <span class="form-hint">Ceiling duration</span>
+          </div>
+
+          <div class="form-group" style="grid-column: span 2;">
+            <label class="form-label" for="est-other-phase">
+              Opposing Phase + Clearance Time (s)
+            </label>
+            <input type="number" id="est-other-phase" class="form-input" min="10" max="90" value="30" step="1">
+            <span class="form-hint">Fixed cross-street time used to compute total cycle length</span>
+          </div>
+        </div>
+
+        <!-- Inline Error Banner -->
+        <div id="est-error-msg" class="form-error" style="display: none; padding: var(--space-2); background: var(--signal-red-bg); border-radius: var(--radius-sign);">
+          {{ icons.icon_alert_triangle(size=14) }} Invalid parameter constraints.
+        </div>
+
+      </div>
+
+      <!-- Live Calculation Card -->
+      <div class="estimator-result-card" role="region" aria-live="polite" aria-label="Live calculation outcome">
+
+        <div class="cluster cluster-between">
+          <div class="stack stack-xs">
+            <span class="eyebrow">Outcome &bull; Webster Model</span>
+            <h3 style="font-size: var(--text-xl); font-weight: var(--font-weight-bold);">Suggested Signal Timing</h3>
+          </div>
+          <span class="badge badge--estimate" title="ESTIMATE, not measured">ESTIMATE, NOT MEASURED</span>
+        </div>
+
+        <!-- Side-by-Side Timing Comparison Box -->
+        <div class="comparison-box">
+          <div class="comparison-item">
+            <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: bold; text-transform: uppercase;">Fixed Baseline</span>
+            <span class="comparison-val" id="est-baseline-green" style="color: var(--text-muted);">30s</span>
+            <span style="font-size: var(--text-xs); color: var(--text-muted);">Static timer</span>
+          </div>
+          <div class="comparison-item" style="border-left: 1px solid var(--rule); padding-left: var(--space-4);">
+            <span style="font-size: var(--text-xs); color: var(--brand-secondary-text); font-weight: bold; text-transform: uppercase;">Suggested Green</span>
+            <span class="comparison-val" id="est-suggested-green" style="color: var(--brand-secondary-text);">42s</span>
+            <span style="font-size: var(--text-xs); color: var(--brand-secondary-text);">Queue responsive</span>
+          </div>
+        </div>
+
+        <!-- Delay Impact Metrics -->
+        <div class="stack stack-xs">
+          <span class="eyebrow">Estimated Average Delay per Vehicle</span>
+          <div class="cluster cluster-between" style="align-items: baseline;">
+            <div class="cluster cluster-sm">
+              <span style="font-size: var(--text-sm); color: var(--text-muted);">Fixed delay: <strong id="est-baseline-delay" class="font-mono" style="color: var(--text);">7.5s</strong></span>
+              <span>&rarr;</span>
+              <span style="font-size: var(--text-sm); color: var(--text-muted);">Adaptive: <strong id="est-suggested-delay" class="font-mono" style="color: var(--brand-secondary-text);">5.4s</strong></span>
+            </div>
+            <span id="est-delay-delta" class="delta-badge delta-badge--faster">2.1s delay reduction / veh</span>
+          </div>
+        </div>
+
+        <!-- Traffic Light Widget Preview Container -->
+        <div class="stack stack-xs" style="padding-top: var(--space-2); border-top: 1px solid var(--rule);">
+          <span class="eyebrow">Real-Time Signal State Visualizer</span>
+          <div id="est-traffic-light"></div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<!-- 7. Who It Helps Section (id="who-it-helps")                       -->
+<!-- ================================================================ -->
+<section class="personas-section" id="who-it-helps" aria-labelledby="who-heading">
+  <div class="container stack stack-xl">
+    <div class="stack stack-xs" style="text-align: center; max-width: 680px; margin-inline: auto;">
+      <span class="eyebrow">Stakeholder Perspectives</span>
+      <h2 id="who-heading" style="font-size: clamp(1.85rem, 3.5vw, 2.5rem); line-height: var(--leading-tight); margin-bottom: 0;">
+        Who the prototype helps
+      </h2>
+      <p style="color: var(--text-muted); font-size: var(--text-base);">
+        How camera-assisted traffic analytics and adaptive timing insights provide practical value across urban mobility roles.
+      </p>
+    </div>
+
+    <!-- 4 Illustrative Personas Masonry Grid -->
+    <div class="personas-grid" role="list">
+
+      <!-- Persona 1: Traffic Police Officer -->
+      <article class="persona-card reveal-item" role="listitem">
+        <div class="persona-avatar" aria-hidden="true">
+          {{ icons.icon_user_badge(size=24) }}
+        </div>
+        <div class="stack stack-xs" style="flex: 1;">
+          <div class="cluster cluster-between" style="align-items: baseline;">
+            <h3 style="font-size: var(--text-base); font-weight: var(--font-weight-bold); margin-bottom: 0;">
+              Traffic Police Officer
+            </h3>
+            <span class="tag-sign" style="font-size: var(--text-xs); color: var(--brand-secondary-text); border-color: var(--brand-secondary);">
+              Prototype use case
+            </span>
+          </div>
+          <p style="font-size: var(--text-sm); color: var(--text-muted); line-height: var(--leading-relaxed);">
+            Provides real-time visibility into queue buildups across approaching lanes to assist in manual intervention decisions during peak hours.
+          </p>
+        </div>
+      </article>
+
+      <!-- Persona 2: City Planner -->
+      <article class="persona-card reveal-item" role="listitem">
+        <div class="persona-avatar" aria-hidden="true">
+          {{ icons.icon_map_pin(size=24) }}
+        </div>
+        <div class="stack stack-xs" style="flex: 1;">
+          <div class="cluster cluster-between" style="align-items: baseline;">
+            <h3 style="font-size: var(--text-base); font-weight: var(--font-weight-bold); margin-bottom: 0;">
+              City Planner
+            </h3>
+            <span class="tag-sign" style="font-size: var(--text-xs); color: var(--brand-secondary-text); border-color: var(--brand-secondary);">
+              Prototype use case
+            </span>
+          </div>
+          <p style="font-size: var(--text-sm); color: var(--text-muted); line-height: var(--leading-relaxed);">
+            Aggregates historical density patterns and peak-hour volume trends to evaluate signal timing changes and corridor improvements.
+          </p>
+        </div>
+      </article>
+
+      <!-- Persona 3: Daily Commuter -->
+      <article class="persona-card reveal-item" role="listitem">
+        <div class="persona-avatar" aria-hidden="true">
+          {{ icons.icon_car_simple(size=24) }}
+        </div>
+        <div class="stack stack-xs" style="flex: 1;">
+          <div class="cluster cluster-between" style="align-items: baseline;">
+            <h3 style="font-size: var(--text-base); font-weight: var(--font-weight-bold); margin-bottom: 0;">
+              Daily Commuter
+            </h3>
+            <span class="tag-sign" style="font-size: var(--text-xs); color: var(--brand-secondary-text); border-color: var(--brand-secondary);">
+              Prototype use case
+            </span>
+          </div>
+          <p style="font-size: var(--text-sm); color: var(--text-muted); line-height: var(--leading-relaxed);">
+            Could experience reduced waiting times and smoother transit progression through adaptive green time allocation.
+          </p>
+        </div>
+      </article>
+
+      <!-- Persona 4: Faculty Evaluator -->
+      <article class="persona-card reveal-item" role="listitem">
+        <div class="persona-avatar" aria-hidden="true">
+          {{ icons.icon_graduation_cap(size=24) }}
+        </div>
+        <div class="stack stack-xs" style="flex: 1;">
+          <div class="cluster cluster-between" style="align-items: baseline;">
+            <h3 style="font-size: var(--text-base); font-weight: var(--font-weight-bold); margin-bottom: 0;">
+              Faculty Evaluator
+            </h3>
+            <span class="tag-sign" style="font-size: var(--text-xs); color: var(--brand-secondary-text); border-color: var(--brand-secondary);">
+              Prototype use case
+            </span>
+          </div>
+          <p style="font-size: var(--text-sm); color: var(--text-muted); line-height: var(--leading-relaxed);">
+            Demonstrates a complete, modular computer vision and web analytics architecture implementing real-time algorithms without external cloud APIs.
+          </p>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- Mandatory Honest Perspective Disclaimer -->
+    <p style="text-align: center; color: var(--text-muted); font-size: var(--text-xs); letter-spacing: var(--tracking-wide);">
+      Illustrative personas, not real testimonials.
+    </p>
+
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<!-- 8. Tech Stack & Hardware Panel (id="tech-stack")                  -->
+<!-- ================================================================ -->
+<section class="techstack-section" id="tech-stack" aria-labelledby="stack-heading">
+  <div class="container stack stack-xl">
+    <div class="stack stack-xs" style="text-align: center; max-width: 680px; margin-inline: auto;">
+      <span class="eyebrow">Architecture &amp; Specifications</span>
+      <h2 id="stack-heading" style="font-size: clamp(1.85rem, 3.5vw, 2.5rem); line-height: var(--leading-tight); margin-bottom: 0;">
+        Tech stack and hardware
+      </h2>
+      <p style="color: var(--text-muted); font-size: var(--text-base);">
+        Finalized technology decisions and local compute requirements for edge-friendly execution.
+      </p>
+    </div>
+
+    <!-- Two-Part Decision Panel -->
+    <div class="techstack-grid">
+
+      <!-- Left Panel: Software Stack -->
+      <div class="techstack-panel">
+        <div class="cluster cluster-between" style="border-bottom: 1px solid var(--rule); padding-bottom: var(--space-3);">
+          <h3 style="font-size: var(--text-lg); font-weight: var(--font-weight-bold); margin-bottom: 0;">
+            Software Stack
+          </h3>
+          <span class="tag-sign">Core Engine</span>
+        </div>
+        <ul class="techstack-list" role="list">
+          <li class="techstack-item" role="listitem">
+            <span class="techstack-name">Python 3.10+</span>
+            <span class="techstack-role">Backend runtime &amp; pipeline</span>
+          </li>
+          <li class="techstack-item" role="listitem">
+            <span class="techstack-name">OpenCV</span>
+            <span class="techstack-role">Frame capture &amp; pre-processing</span>
+          </li>
+          <li class="techstack-item" role="listitem">
+            <span class="techstack-name">YOLOv8n (Ultralytics)</span>
+            <span class="techstack-role">Object detection &amp; classification</span>
+          </li>
+          <li class="techstack-item" role="listitem">
+            <span class="techstack-name">ByteTrack</span>
+            <span class="techstack-role">Multi-object tracking &amp; counts</span>
+          </li>
+          <li class="techstack-item" role="listitem">
+            <span class="techstack-name">Flask</span>
+            <span class="techstack-role">Web application &amp; SSE streaming</span>
+          </li>
+          <li class="techstack-item" role="listitem">
+            <span class="techstack-name">SQLite</span>
+            <span class="techstack-role">Local embedded time-series logs</span>
+          </li>
+          <li class="techstack-item" role="listitem">
+            <span class="techstack-name">Chart.js</span>
+            <span class="techstack-role">Client-side analytics charts</span>
+          </li>
+          <li class="techstack-item" role="listitem">
+            <span class="techstack-name">scikit-learn</span>
+            <span class="techstack-role">Trend computation &amp; analytics</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Right Panel: Hardware Requirements -->
+      <div class="techstack-panel">
+        <div class="cluster cluster-between" style="border-bottom: 1px solid var(--rule); padding-bottom: var(--space-3);">
+          <h3 style="font-size: var(--text-lg); font-weight: var(--font-weight-bold); margin-bottom: 0;">
+            Hardware Requirements
+          </h3>
+          <span class="tag-sign">Deployment Specs</span>
+        </div>
+        <ul class="techstack-list" role="list">
+          <li class="techstack-item" role="listitem">
+            <span class="techstack-name">Compute Device</span>
+            <span class="techstack-role">A laptop (no GPU needed)</span>
+          </li>
+          <li class="techstack-item" role="listitem">
+            <span class="techstack-name">Video Input</span>
+            <span class="techstack-role">A webcam or recorded traffic video</span>
+          </li>
+          <li class="techstack-item" role="listitem">
+            <span class="techstack-name">System Memory</span>
+            <span class="techstack-role">4 GB RAM minimum</span>
+          </li>
+          <li class="techstack-item" role="listitem">
+            <span class="techstack-name">Disk Storage</span>
+            <span class="techstack-role">~500 MB (PyTorch CPU + model weights)</span>
+          </li>
+        </ul>
+
+        <!-- Pretrained COCO Model Note -->
+        <div class="panel panel-raised" style="margin-top: auto; border-left: 3px solid var(--brand-secondary);">
+          <p style="font-size: var(--text-xs); color: var(--text-muted); line-height: var(--leading-relaxed);">
+            <strong>Pretrained Model Note:</strong> A pretrained COCO model is used and no custom training is done. Vehicle classes (car, motorcycle, bus, truck) are recognized out of the box using general weights.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<!-- 9. FAQ Accordion (id="faq")                                      -->
+<!-- ================================================================ -->
+<section class="faq-section" id="faq" aria-labelledby="faq-heading">
+  <div class="container stack stack-xl">
+    <div class="stack stack-xs" style="text-align: center; max-width: 680px; margin-inline: auto;">
+      <span class="eyebrow">Questions &amp; Clarifications</span>
+      <h2 id="faq-heading" style="font-size: clamp(1.85rem, 3.5vw, 2.5rem); line-height: var(--leading-tight); margin-bottom: 0;">
+        Frequently asked questions
+      </h2>
+      <p style="color: var(--text-muted); font-size: var(--text-base);">
+        Honest answers regarding model capabilities, hardware boundaries, and system expectations.
+      </p>
+    </div>
+
+    <!-- Accessible Accordion List -->
+    <ul class="faq-list" role="list">
+
+      <!-- FAQ 1 -->
+      <li class="faq-item" role="listitem">
+        <h3>
+          <button type="button" class="faq-trigger" id="faq-btn-1" aria-expanded="false" aria-controls="faq-panel-1">
+            <span>What does it detect?</span>
+            <span class="faq-icon" aria-hidden="true">{{ icons.icon_chevron_down(size=18) }}</span>
+          </button>
+        </h3>
+        <div class="faq-panel" id="faq-panel-1" role="region" aria-labelledby="faq-btn-1">
+          <p>Cars, motorcycles, buses and trucks using a pretrained YOLOv8n model.</p>
+        </div>
+      </li>
+
+      <!-- FAQ 2 -->
+      <li class="faq-item" role="listitem">
+        <h3>
+          <button type="button" class="faq-trigger" id="faq-btn-2" aria-expanded="false" aria-controls="faq-panel-2">
+            <span>Does it control real traffic signals?</span>
+            <span class="faq-icon" aria-hidden="true">{{ icons.icon_chevron_down(size=18) }}</span>
+          </button>
+        </h3>
+        <div class="faq-panel" id="faq-panel-2" role="region" aria-labelledby="faq-btn-2">
+          <p>No. It only suggests timings on screen.</p>
+        </div>
+      </li>
+
+      <!-- FAQ 3 -->
+      <li class="faq-item" role="listitem">
+        <h3>
+          <button type="button" class="faq-trigger" id="faq-btn-3" aria-expanded="false" aria-controls="faq-panel-3">
+            <span>How accurate is it?</span>
+            <span class="faq-icon" aria-hidden="true">{{ icons.icon_chevron_down(size=18) }}</span>
+          </button>
+        </h3>
+        <div class="faq-panel" id="faq-panel-3" role="region" aria-labelledby="faq-btn-3">
+          <p>Accuracy depends on camera angle, lighting and traffic; the project targets at least 85% counting accuracy on its test video, and we report measured results only after testing.</p>
+        </div>
+      </li>
+
+      <!-- FAQ 4 -->
+      <li class="faq-item" role="listitem">
+        <h3>
+          <button type="button" class="faq-trigger" id="faq-btn-4" aria-expanded="false" aria-controls="faq-panel-4">
+            <span>What about night, rain and auto-rickshaws?</span>
+            <span class="faq-icon" aria-hidden="true">{{ icons.icon_chevron_down(size=18) }}</span>
+          </button>
+        </h3>
+        <div class="faq-panel" id="faq-panel-4" role="region" aria-labelledby="faq-btn-4">
+          <p>Accuracy drops at night and in rain; auto-rickshaws are not a separate class in the COCO model, so they may be counted under another vehicle type or missed.</p>
+        </div>
+      </li>
+
+      <!-- FAQ 5 -->
+      <li class="faq-item" role="listitem">
+        <h3>
+          <button type="button" class="faq-trigger" id="faq-btn-5" aria-expanded="false" aria-controls="faq-panel-5">
+            <span>Is any personal data stored?</span>
+            <span class="faq-icon" aria-hidden="true">{{ icons.icon_chevron_down(size=18) }}</span>
+          </button>
+        </h3>
+        <div class="faq-panel" id="faq-panel-5" role="region" aria-labelledby="faq-btn-5">
+          <p>No number plates or faces are read or stored, and frames are not saved.</p>
+        </div>
+      </li>
+
+      <!-- FAQ 6 -->
+      <li class="faq-item" role="listitem">
+        <h3>
+          <button type="button" class="faq-trigger" id="faq-btn-6" aria-expanded="false" aria-controls="faq-panel-6">
+            <span>Can I run it without a video?</span>
+            <span class="faq-icon" aria-hidden="true">{{ icons.icon_chevron_down(size=18) }}</span>
+          </button>
+        </h3>
+        <div class="faq-panel" id="faq-panel-6" role="region" aria-labelledby="faq-btn-6">
+          <p>Yes, Simulation mode generates synthetic data, always labelled "Simulated".</p>
+        </div>
+      </li>
+
+    </ul>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<!-- 10. Final Conversion Banner Section                              -->
+<!-- ================================================================ -->
+<section class="conversion-banner" aria-labelledby="conversion-heading">
+  <div class="container conversion-inner">
+    <span class="tag-sign" style="background-color: rgba(255, 255, 255, 0.15); color: #FFFFFF; border-color: rgba(255, 255, 255, 0.3);">
+      Live Demonstration &amp; Documentation
+    </span>
+    <h2 class="conversion-title" id="conversion-heading">
+      Watch the intersection in real time
+    </h2>
+    <p class="conversion-desc">
+      Explore live vehicle counts, queue density classification, and adaptive signal timing advice in your browser.
+    </p>
+    <div class="conversion-actions" role="group" aria-label="Final conversion actions">
+      <a href="{{ url_for('pages.dashboard') }}" class="btn btn--lg btn--conversion-primary" id="cta-banner-dashboard">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+        Launch Live Dashboard
+      </a>
+      <a href="{{ url_for('pages.download_readme') }}" class="btn btn--lg btn--conversion-secondary" id="cta-banner-readme">
+        Download Project README
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+  <script type="module" src="{{ url_for('static', filename='js/landing.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/estimator.js') }}"></script>
+{% endblock %}

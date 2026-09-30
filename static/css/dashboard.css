@@ -1,0 +1,678 @@
+/*
+ * static/css/dashboard.css
+ * Control Room layout and component styling for Live Traffic Dashboard.
+ * "Transit Signage Control Room" design language.
+ */
+
+.dashboard-page {
+  padding-block: clamp(var(--space-6), 4vw, var(--space-12));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* ==========================================================================
+   1. Congestion Warning Banner (role="alert")
+   ========================================================================== */
+.congestion-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-5);
+  background-color: var(--signal-red-bg);
+  border: 1.5px solid var(--signal-red);
+  border-radius: var(--radius-sign);
+  color: var(--signal-red);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+  animation: banner-pulse 2s ease-in-out infinite;
+}
+
+@keyframes banner-pulse {
+  0%, 100% { border-color: var(--signal-red); }
+  50% { border-color: rgba(239, 68, 68, 0.5); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .congestion-banner {
+    animation: none !important;
+  }
+}
+
+.congestion-banner-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.congestion-banner-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.congestion-banner-text {
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  line-height: var(--leading-tight);
+}
+
+.congestion-banner-close {
+  color: var(--signal-red);
+  opacity: 0.8;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.congestion-banner-close:hover {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   2. Header & Control Room Status Bar
+   ========================================================================== */
+.dash-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--rule);
+}
+
+.dash-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--leading-tight);
+  color: var(--text);
+  margin-bottom: 0;
+}
+
+.dash-status-cluster {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* ==========================================================================
+   3. Top Control Bar & Segmented Source Selector
+   ========================================================================== */
+.dash-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--surface-raised);
+  border: var(--card-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.dash-source-selector {
+  display: inline-flex;
+  background-color: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sign);
+  padding: 3px;
+  gap: 2px;
+}
+
+.segmented-option {
+  position: relative;
+  cursor: pointer;
+  margin: 0;
+}
+
+.segmented-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.segmented-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px var(--space-3);
+  border-radius: 4px;
+  font-family: var(--font-heading);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-muted);
+  transition: background-color var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out);
+  user-select: none;
+}
+
+.segmented-option input[type="radio"]:checked + .segmented-btn {
+  background-color: var(--surface-raised);
+  color: var(--text);
+  font-weight: var(--font-weight-bold);
+  box-shadow: var(--shadow-xs);
+}
+
+.segmented-option input[type="radio"]:focus-visible + .segmented-btn {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.dash-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* ==========================================================================
+   4. KPI Tiles Row
+   ========================================================================== */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+
+@media (max-width: 1024px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kpi-card {
+  background-color: var(--surface);
+  border: var(--card-border);
+  border-radius: var(--radius-card);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  transition: transform var(--dur-base) var(--ease-out),
+              border-color var(--dur-base) var(--ease-out);
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--brand-secondary);
+}
+
+.kpi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kpi-label {
+  font-family: var(--font-heading);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.kpi-icon {
+  color: var(--brand-secondary-text);
+  background-color: rgba(212, 160, 23, 0.1);
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kpi-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kpi-val {
+  font-family: var(--font-mono);
+  font-size: var(--text-3xl);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.kpi-sub {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   5. Main Grid: 12-Column Split (Video & Time Series Left, Signals Right)
+   ========================================================================== */
+.dash-main-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .dash-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dash-panel {
+  background-color: var(--surface);
+  border: var(--card-border);
+  border-radius: var(--radius-card);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.dash-panel-header {
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: var(--space-3);
+}
+
+.dash-panel-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--text);
+  margin-bottom: 0;
+}
+
+/* 16:9 Video Monitor Container */
+.video-viewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: #060B14;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sign);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-feed-stream {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.video-skeleton {
+  position: absolute;
+  inset: 0;
+  background-color: var(--surface-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Simulated Radar Graphic Placeholder */
+.video-sim-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(212, 160, 23, 0.08) 0%, #060B14 70%);
+}
+
+.sim-radar-circle {
+  width: 160px;
+  height: 160px;
+  border: 1px dashed rgba(212, 160, 23, 0.35);
+  border-radius: 50%;
+  position: absolute;
+  animation: radar-spin 8s linear infinite;
+}
+
+@keyframes radar-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sim-radar-circle {
+    animation: none !important;
+  }
+}
+
+.sim-overlay-hud {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background-color: rgba(11, 18, 32, 0.85);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sign);
+  backdrop-filter: blur(4px);
+}
+
+.sim-hud-text {
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--text);
+  margin-bottom: 0;
+}
+
+.sim-hud-hint {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* Signal Panel & Visualizer */
+.signal-visualizer-box {
+  background-color: var(--surface-raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sign);
+  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.comparison-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--surface-raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sign);
+}
+
+.comparison-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.comp-label {
+  font-family: var(--font-heading);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.comp-val {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text);
+}
+
+.comp-sub {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* Vehicle Type Doughnut Layout */
+.doughnut-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: var(--space-4);
+}
+
+@media (max-width: 480px) {
+  .doughnut-wrapper {
+    flex-direction: column;
+  }
+}
+
+.veh-type-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  list-style: none;
+  flex: 1;
+  max-width: 200px;
+}
+
+.veh-type-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px var(--space-2);
+  border-radius: var(--radius-sign);
+  background-color: var(--surface-raised);
+  border: 1px solid var(--rule);
+  font-size: var(--text-xs);
+}
+
+.veh-type-bullet {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: var(--space-1);
+}
+
+.veh-type-name {
+  flex: 1;
+  color: var(--text);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ==========================================================================
+   6. Four Approach Zone Cards
+   ========================================================================== */
+.zones-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+
+@media (max-width: 1024px) {
+  .zones-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .zones-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.zone-card {
+  background-color: var(--surface);
+  border: var(--card-border);
+  border-radius: var(--radius-card);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  transition: transform var(--dur-base) var(--ease-out),
+              border-color var(--dur-base) var(--ease-out);
+}
+
+.zone-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--brand-secondary);
+}
+
+.zone-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.zone-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--text);
+}
+
+.zone-driver-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: bold;
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-sign);
+  background-color: var(--brand-secondary);
+  color: #0B1220;
+  text-transform: uppercase;
+}
+
+.zone-card-body {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.zone-count-val {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text);
+  line-height: 1;
+}
+
+.zone-count-sub {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-left: var(--space-1);
+}
+
+/* Density Chips */
+.density-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sign);
+  font-family: var(--font-heading);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-bold);
+  border: 1px solid var(--rule);
+}
+
+.density-chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.density-chip--low {
+  background-color: var(--signal-green-bg);
+  border-color: var(--signal-green);
+  color: var(--signal-green);
+}
+.density-chip--low .density-chip-dot { background-color: var(--signal-green); }
+
+.density-chip--medium {
+  background-color: var(--signal-amber-bg);
+  border-color: var(--signal-amber);
+  color: var(--signal-amber);
+}
+.density-chip--medium .density-chip-dot { background-color: var(--signal-amber); }
+
+.density-chip--high {
+  background-color: var(--signal-red-bg);
+  border-color: var(--signal-red);
+  color: var(--signal-red);
+}
+.density-chip--high .density-chip-dot { background-color: var(--signal-red); }
+
+/* Linear Density Gauge */
+.zone-gauge-track {
+  width: 100%;
+  height: 6px;
+  background-color: var(--surface-raised);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.zone-gauge-fill {
+  height: 100%;
+  transition: width 300ms var(--ease-out), background-color 300ms var(--ease-out);
+}
+
+.zone-gauge-fill--low { background-color: var(--signal-green); }
+.zone-gauge-fill--medium { background-color: var(--signal-amber); }
+.zone-gauge-fill--high { background-color: var(--signal-red); }
+
+/* ==========================================================================
+   7. Alerts Feed
+   ========================================================================== */
+.alerts-feed-container {
+  max-height: 240px;
+  overflow-y: auto;
+  padding-right: var(--space-2);
+}
+
+.alerts-feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  list-style: none;
+}
+
+.alerts-feed-empty {
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  background-color: var(--surface-raised);
+  border-radius: var(--radius-sign);
+  border: 1px dashed var(--rule);
+}
+
+.alert-feed-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--surface-raised);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--signal-red);
+  border-radius: var(--radius-sign);
+  font-size: var(--text-xs);
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.alert-feed-item.is-resolved {
+  border-left-color: var(--signal-green);
+  opacity: 0.75;
+}
+
+.alert-feed-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.alert-feed-msg {
+  color: var(--text);
+  font-weight: var(--font-weight-medium);
+}
+
+.alert-feed-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
