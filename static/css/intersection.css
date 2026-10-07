@@ -1,0 +1,500 @@
+/* ============================================================
+   intersection.css – 4-Way Interactive Intersection Simulator
+   ============================================================ */
+
+/* ── Page Layout ── */
+.intersection-page {
+  padding: var(--space-4) 0 var(--space-10);
+  min-height: 100vh;
+}
+
+.intersection-page .page-header {
+  margin-bottom: var(--space-4);
+}
+
+.intersection-page .page-eyebrow {
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  margin-bottom: var(--space-1);
+}
+
+.intersection-page h1 {
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  font-weight: 800;
+  color: var(--text-heading);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-1);
+}
+
+.intersection-page .page-subtitle {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  max-width: 680px;
+  line-height: 1.5;
+}
+
+/* ── Stats Row ── */
+.sim-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+@media (max-width: 768px) {
+  .sim-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.sim-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md, 8px);
+  padding: var(--space-3) var(--space-4);
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.sim-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.sim-stat-val {
+  font-family: var(--font-mono);
+  font-size: clamp(1.3rem, 2vw, 1.7rem);
+  font-weight: 800;
+  color: var(--text-heading);
+  line-height: 1.1;
+  margin-bottom: 2px;
+}
+
+.sim-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+/* ── Main Simulation Grid ── */
+.sim-layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .sim-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Canvas Panel ── */
+.sim-canvas-panel {
+  background: #0b0f19;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+.sim-canvas-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  background: rgba(17, 24, 39, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+.sim-canvas-title {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.sim-canvas-badges {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.sim-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 10px #10b981; }
+  50% { opacity: 0.4; box-shadow: 0 0 2px #10b981; }
+}
+
+#intersection-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  background: #090d16;
+  cursor: default;
+}
+
+/* ── Controls Sidebar ── */
+.sim-controls-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sim-panel {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.sim-panel-header {
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-raised, rgba(255, 255, 255, 0.03));
+  border-bottom: 1px solid var(--rule);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-heading);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.sim-panel-body {
+  padding: var(--space-3) var(--space-4);
+}
+
+/* ── Road Sliders ── */
+.road-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.road-control-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.road-control-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.road-label-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-heading);
+}
+
+.road-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.road-color-dot--north { background: #38bdf8; box-shadow: 0 0 6px rgba(56, 189, 248, 0.6); }
+.road-color-dot--south { background: #34d399; box-shadow: 0 0 6px rgba(52, 211, 153, 0.6); }
+.road-color-dot--east  { background: #fbbf24; box-shadow: 0 0 6px rgba(251, 191, 36, 0.6); }
+.road-color-dot--west  { background: #f472b6; box-shadow: 0 0 6px rgba(244, 114, 182, 0.6); }
+
+.road-vehicle-count {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-heading);
+  font-weight: 700;
+  min-width: 48px;
+  text-align: right;
+}
+
+.road-slider-track {
+  position: relative;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.road-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  background: transparent;
+  outline: none;
+  cursor: pointer;
+  border-radius: 4px;
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  display: block;
+}
+
+.road-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid var(--accent);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.road-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+  box-shadow: 0 0 0 5px rgba(99, 102, 241, 0.35);
+}
+
+.road-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid var(--accent);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  cursor: pointer;
+}
+
+.road-slider-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 4px;
+  pointer-events: none;
+  transition: width 0.08s ease;
+}
+
+.road-slider-fill--north { background: linear-gradient(90deg, #0284c7, #38bdf8); }
+.road-slider-fill--south { background: linear-gradient(90deg, #059669, #34d399); }
+.road-slider-fill--east  { background: linear-gradient(90deg, #d97706, #fbbf24); }
+.road-slider-fill--west  { background: linear-gradient(90deg, #db2777, #f472b6); }
+
+.density-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-left: 4px;
+}
+
+.density-badge--low    { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+.density-badge--medium { background: rgba(245, 158, 11, 0.18); color: #fbbf24; }
+.density-badge--high   { background: rgba(239, 68, 68, 0.2);   color: #f87171; }
+
+/* ── Phase Indicator ── */
+.phase-indicator {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.phase-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 12px;
+}
+
+.phase-row--active {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.phase-light {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+}
+
+.phase-light--green  { background: #10b981; box-shadow: 0 0 10px #10b981; }
+.phase-light--red    { background: #ef4444; box-shadow: 0 0 10px #ef4444; }
+.phase-light--amber  { background: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
+.phase-light--off    { background: #1f2937; }
+
+.phase-label {
+  flex: 1;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.phase-timer {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-heading);
+  min-width: 40px;
+  text-align: right;
+}
+
+/* ── Webster Advisory Card ── */
+.signal-advisory-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.signal-advisory-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 8px;
+  text-align: center;
+}
+
+.signal-advisory-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.signal-advisory-value {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.signal-advisory-value--green { color: #34d399; }
+.signal-advisory-value--fixed { color: #94a3b8; }
+.signal-advisory-value--red   { color: #f87171; }
+
+.signal-advisory-sub {
+  font-size: 9px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ── Quick Actions ── */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.quick-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.quick-btn:hover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.4);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.quick-btn-icon {
+  font-size: 12px;
+}
+
+/* ── Congestion Warning Pill ── */
+.congestion-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  border: 1px solid;
+  transition: all 0.3s ease;
+}
+
+.congestion-pill--ok {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.congestion-pill--warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.congestion-pill--critical {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+/* ── Webster formula display ── */
+.formula-display {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin-top: 8px;
+}
+
+.formula-display .formula-highlight {
+  color: #38bdf8;
+  font-weight: 700;
+}

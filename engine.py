@@ -220,6 +220,18 @@ class TrafficEngine:
             self._worker_thread.join(timeout=2.0)
             self._worker_thread = None
 
+    def set_simulation_counts(self, counts: dict[str, float]) -> dict[str, Any] | None:
+        """Dynamically update zone counts from interactive simulator and broadcast immediately."""
+        with self._lock:
+            if self._active_source and hasattr(self._active_source, "set_zone_counts"):
+                raw_snap = self._active_source.set_zone_counts(counts)
+                if raw_snap:
+                    processed_snap = self._process_snapshot(raw_snap)
+                    self._latest_snapshot = processed_snap
+                    self._publish_snapshot(processed_snap)
+                    return processed_snap
+            return self._latest_snapshot
+
     def subscribe(self) -> queue.Queue:
         """Register a new SSE client subscriber queue."""
         q: queue.Queue = queue.Queue(maxsize=30)

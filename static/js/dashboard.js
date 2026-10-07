@@ -690,7 +690,14 @@ function wireToolbar() {
     btnStart.addEventListener("click", async () => {
       try {
         btnStart.disabled = true;
-        const res = await fetchApi("/api/start", { method: "POST" });
+        let payload = { source: STATE.currentSource || "simulation" };
+        if (STATE.currentSource === "webcam") {
+          payload.camera_index = 0;
+        }
+        const res = await fetchApi("/api/start", {
+          method: "POST",
+          body: payload,
+        });
         if (res.ok) {
           showToast(res.data?.message || "Engine started", "success");
           STATE.isRunning = true;

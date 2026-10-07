@@ -4,11 +4,12 @@ routes/pages.py – HTML page route handlers for the Smart Traffic Monitoring Sy
 Blueprint: pages_bp (no URL prefix)
 
 Routes served (all return rendered HTML templates):
-  GET /              → index.html  – Landing page with "Launch Live Dashboard" CTA.
-  GET /dashboard     → dashboard.html – Live monitoring view.
-  GET /analytics     → analytics.html – Historical charts and trend view.
-  GET /settings      → settings.html  – Configuration panel.
-  GET /about         → about.html     – Project overview, team, references.
+  GET /              → index.html      – Landing page with "Launch Live Dashboard" CTA.
+  GET /dashboard     → dashboard.html  – Live monitoring view.
+  GET /analytics     → analytics.html  – Historical charts and trend view.
+  GET /settings      → settings.html   – Configuration panel.
+  GET /about         → about.html      – Project overview, team, references.
+  GET /intersection  → intersection.html – 4-way interactive intersection simulator.
   GET /download/readme → Streams README.md as a text/plain download.
 
 Rules:
@@ -77,6 +78,17 @@ def about():
     All team and college text is injected automatically via g.project.
     """
     return render_template("about.html")
+
+
+@pages_bp.route("/intersection")
+def intersection():
+    """Render the 4-way interactive intersection simulation page.
+
+    A canvas-based real-time simulator with per-road vehicle sliders,
+    animated vehicles (car/bus/truck/bike), adaptive signal timing via
+    Webster's formula, and congestion indicators.
+    """
+    return render_template("intersection.html")
 
 
 @pages_bp.route("/styleguide")

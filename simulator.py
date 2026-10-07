@@ -73,6 +73,14 @@ class TrafficSimulator:
         with self._lock:
             return self._latest_snapshot
 
+    def set_zone_counts(self, counts: dict[str, float]) -> dict[str, Any]:
+        """Dynamically update active road/zone vehicle densities from interactive simulation."""
+        with self._lock:
+            for z, val in counts.items():
+                if z in self._zone_counts:
+                    self._zone_counts[z] = float(max(0, val))
+            return self._generate_snapshot()
+
     def _run_loop(self) -> None:
         """Background 1 Hz simulation loop."""
         while True:

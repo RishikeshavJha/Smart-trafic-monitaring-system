@@ -58,6 +58,14 @@ def test_about_returns_200(client):
     assert response.status_code == 200
 
 
+def test_intersection_returns_200(client):
+    """GET /intersection should return HTTP 200 and include simulation elements."""
+    response = client.get("/intersection")
+    assert response.status_code == 200
+    assert b"4-Way Intersection Signal Simulator" in response.data
+    assert b"intersection-canvas" in response.data
+
+
 def test_analytics_returns_200(client):
     """GET /analytics should return HTTP 200."""
     response = client.get("/analytics")

@@ -149,6 +149,11 @@
               About
             </a>
           </li>
+          <li>
+            <a href="{{ url_for('pages.intersection') }}" class="nav-link {% if request.endpoint == 'pages.intersection' %}nav-link--active{% endif %}" {% if request.endpoint == 'pages.intersection' %}aria-current="page"{% endif %}>
+              Simulation
+            </a>
+          </li>
         </ul>
 
         <!-- Action Items: CTA Launch Button & Theme Toggle -->

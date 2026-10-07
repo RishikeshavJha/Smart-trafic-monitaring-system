@@ -197,3 +197,23 @@ def test_api_stream_endpoint(client):
     assert res.status_code == 200
     assert "text/event-stream" in res.content_type
     assert res.headers.get("Cache-Control") == "no-cache"
+
+
+def test_api_simulation_state_get_and_post(client):
+    """GET and POST /api/simulation/state for 4-way intersection synchronisation."""
+    # 1. GET current state
+    res_get = client.get("/api/simulation/state")
+    assert res_get.status_code == 200
+    assert res_get.get_json()["ok"] is True
+
+    # 2. POST valid zone counts
+    res_post = client.post("/api/simulation/state", json={"zones": {"N": 20, "S": 15, "E": 10, "W": 5}})
+    assert res_post.status_code == 200
+    data = res_post.get_json()["data"]
+    assert data["zones"]["N"] == 20.0
+    assert data["zones"]["S"] == 15.0
+
+    # 3. POST invalid payload
+    res_bad = client.post("/api/simulation/state", json={"invalid": True})
+    assert res_bad.status_code == 400
+    assert res_bad.get_json()["ok"] is False

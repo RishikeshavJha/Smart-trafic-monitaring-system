@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+{% import "partials/icons.html" as icons %}
+{#
+  templates/intersection.html – 4-Way Interactive Intersection Simulator
+  Features:
+    - HTML5 Canvas with smooth animated vehicles (car, bus, truck, bike)
+    - 4 traffic lights with full signal cycle (Green → Amber → Red)
+    - Per-road interactive sliders (0–25 vehicles)
+    - Real-time Webster adaptive signal timing
+    - Quick action presets (rush hour, peak hour, balanced, clear)
+    - Live signal phase timer, congestion indicator, junction delay
+#}
+
+{% block title %}4-Way Intersection Simulator — Smart Traffic Monitoring System{% endblock %}
+{% block description %}Interactive 4-way intersection simulation with animated vehicles, adaptive traffic signals, and Webster signal timing. Control traffic flow per road and watch the signal algorithm adapt in real time.{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/intersection.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="intersection-page container">
+
+  {# ── Page Header ── #}
+  <header class="page-header">
+    <p class="page-eyebrow">Interactive Simulation</p>
+    <h1>4-Way Intersection Signal Simulator</h1>
+    <p class="page-subtitle">
+      Control vehicle flow on each road with sliders. Watch the
+      <strong>Webster Adaptive Algorithm</strong> adjust green-signal durations
+      in real time as traffic queues grow.
+    </p>
+  </header>
+
+  {# ── Stats Bar ── #}
+  <div class="sim-stats-row" role="region" aria-label="Live simulation statistics">
+    <div class="sim-stat-card">
+      <div class="sim-stat-val" id="stat-served">0</div>
+      <div class="sim-stat-label">Vehicles Served</div>
+    </div>
+    <div class="sim-stat-card">
+      <div class="sim-stat-val" id="stat-active">0</div>
+      <div class="sim-stat-label">Active on Road</div>
+    </div>
+    <div class="sim-stat-card">
+      <div class="sim-stat-val" id="stat-delay">7.5s</div>
+      <div class="sim-stat-label">Junction Delay</div>
+    </div>
+    <div class="sim-stat-card">
+      <div class="sim-stat-val" id="stat-total">0</div>
+      <div class="sim-stat-label">Total Queue</div>
+    </div>
+  </div>
+
+  {# ── Main Simulation Layout ── #}
+  <div class="sim-layout">
+
+    {# ── Left: Canvas ── #}
+    <div class="sim-canvas-panel">
+      <div class="sim-canvas-header">
+        <span class="sim-canvas-title">Live Intersection View</span>
+        <div class="sim-canvas-badges">
+          <div class="sim-live-dot" aria-hidden="true"></div>
+          <span class="tag-sign" style="font-family: var(--font-mono); font-size: var(--text-xs);">LIVE SIM</span>
+          <span id="congestion-pill" class="congestion-pill congestion-pill--ok">
+            <span>✓</span> LOW DENSITY
+          </span>
+        </div>
+      </div>
+
+      <canvas
+        id="intersection-canvas"
+        width="640"
+        height="480"
+        style="width: 100%; aspect-ratio: 4/3;"
+        aria-label="4-way intersection simulation canvas showing animated vehicles and traffic lights"
+        role="img">
+        Your browser does not support HTML5 Canvas.
+      </canvas>
+    </div>
+
+    {# ── Right: Controls Sidebar ── #}
+    <div class="sim-controls-panel">
+
+      {# ── Road Traffic Sliders ── #}
+      <section class="sim-panel" aria-labelledby="road-controls-title">
+        <div class="sim-panel-header">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+          <span id="road-controls-title">Road Vehicle Controls</span>
+        </div>
+        <div class="sim-panel-body">
+          <div class="road-controls">
+
+            {# North Road #}
+            <div class="road-control-item">
+              <div class="road-control-label">
+                <span class="road-label-name">
+                  <span class="road-color-dot road-color-dot--north"></span>
+                  North Road (N)
+                  <span class="density-badge density-badge--medium" id="badge-n">MEDIUM</span>
+                </span>
+                <span class="road-vehicle-count" id="count-n">6 vehs</span>
+              </div>
+              <div class="road-slider-track">
+                <div class="road-slider-fill road-slider-fill--north" id="fill-n" style="width: 24%;"></div>
+                <input type="range" id="slider-n" class="road-slider" min="0" max="25" value="6"
+                       aria-label="North road vehicle count" aria-valuemin="0" aria-valuemax="25" aria-valuenow="6">
+              </div>
+            </div>
+
+            {# South Road #}
+            <div class="road-control-item">
+              <div class="road-control-label">
+                <span class="road-label-name">
+                  <span class="road-color-dot road-color-dot--south"></span>
+                  South Road (S)
+                  <span class="density-badge density-badge--low" id="badge-s">LOW</span>
+                </span>
+                <span class="road-vehicle-count" id="count-s">5 vehs</span>
+              </div>
+              <div class="road-slider-track">
+                <div class="road-slider-fill road-slider-fill--south" id="fill-s" style="width: 20%;"></div>
+                <input type="range" id="slider-s" class="road-slider" min="0" max="25" value="5"
+                       aria-label="South road vehicle count" aria-valuemin="0" aria-valuemax="25" aria-valuenow="5">
+              </div>
+            </div>
+
+            {# East Road #}
+            <div class="road-control-item">
+              <div class="road-control-label">
+                <span class="road-label-name">
+                  <span class="road-color-dot road-color-dot--east"></span>
+                  East Road (E)
+                  <span class="density-badge density-badge--low" id="badge-e">LOW</span>
+                </span>
+                <span class="road-vehicle-count" id="count-e">4 vehs</span>
+              </div>
+              <div class="road-slider-track">
+                <div class="road-slider-fill road-slider-fill--east" id="fill-e" style="width: 16%;"></div>
+                <input type="range" id="slider-e" class="road-slider" min="0" max="25" value="4"
+                       aria-label="East road vehicle count" aria-valuemin="0" aria-valuemax="25" aria-valuenow="4">
+              </div>
+            </div>
+
+            {# West Road #}
+            <div class="road-control-item">
+              <div class="road-control-label">
+                <span class="road-label-name">
+                  <span class="road-color-dot road-color-dot--west"></span>
+                  West Road (W)
+                  <span class="density-badge density-badge--low" id="badge-w">LOW</span>
+                </span>
+                <span class="road-vehicle-count" id="count-w">4 vehs</span>
+              </div>
+              <div class="road-slider-track">
+                <div class="road-slider-fill road-slider-fill--west" id="fill-w" style="width: 16%;"></div>
+                <input type="range" id="slider-w" class="road-slider" min="0" max="25" value="4"
+                       aria-label="West road vehicle count" aria-valuemin="0" aria-valuemax="25" aria-valuenow="4">
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {# ── Signal Phase Monitor ── #}
+      <section class="sim-panel" aria-labelledby="signal-phase-title">
+        <div class="sim-panel-header">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="5" r="3"/><circle cx="12" cy="12" r="3"/><circle cx="12" cy="19" r="3"/></svg>
+          <span id="signal-phase-title">Active Signal Phases</span>
+        </div>
+        <div class="sim-panel-body">
+          <div class="phase-indicator" role="status" aria-live="polite" aria-label="Traffic signal phase status">
+            {% for road, label in [("N","North"), ("S","South"), ("E","East"), ("W","West")] %}
+            <div class="phase-row">
+              <div class="phase-light phase-light--red" id="phase-light-{{ road }}" aria-hidden="true"></div>
+              <span class="phase-label" id="phase-state-{{ road }}">{{ label }} – 30s green</span>
+              <span class="phase-timer" id="phase-timer-{{ road }}">30s</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+
+      {# ── Webster Advisory ── #}
+      <section class="sim-panel" aria-labelledby="advisory-title">
+        <div class="sim-panel-header">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <span id="advisory-title">Webster Signal Advisory</span>
+        </div>
+        <div class="sim-panel-body">
+          <div style="font-size: var(--text-xs); color: var(--text-muted); margin-bottom: var(--space-3);">
+            Busiest approach: <strong id="advisory-active-road" style="color: var(--accent);">N Road</strong>
+          </div>
+          <div class="signal-advisory-grid">
+            <div class="signal-advisory-item">
+              <div class="signal-advisory-label">Adaptive Green</div>
+              <div class="signal-advisory-value signal-advisory-value--green" id="advisory-green-time">39s</div>
+              <div class="signal-advisory-sub">Webster formula</div>
+            </div>
+            <div class="signal-advisory-item">
+              <div class="signal-advisory-label">Fixed Baseline</div>
+              <div class="signal-advisory-value signal-advisory-value--fixed">30s</div>
+              <div class="signal-advisory-sub">Static timer</div>
+            </div>
+            <div class="signal-advisory-item">
+              <div class="signal-advisory-label">Adaptive Delay</div>
+              <div class="signal-advisory-value signal-advisory-value--green" id="advisory-adaptive-delay">6.1s</div>
+              <div class="signal-advisory-sub">per vehicle</div>
+            </div>
+            <div class="signal-advisory-item">
+              <div class="signal-advisory-label">Fixed Delay</div>
+              <div class="signal-advisory-value signal-advisory-value--red" id="advisory-fixed-delay">7.5s</div>
+              <div class="signal-advisory-sub">per vehicle</div>
+            </div>
+          </div>
+          <div class="formula-display" aria-label="Webster formula calculation">
+            g = clamp(30 + 1.5×<span class="formula-highlight">n</span>, 10, 60) = <span class="formula-highlight" id="webster-formula">39s</span>
+          </div>
+        </div>
+      </section>
+
+      {# ── Quick Actions ── #}
+      <section class="sim-panel" aria-labelledby="quick-actions-title">
+        <div class="sim-panel-header">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span id="quick-actions-title">Quick Presets</span>
+        </div>
+        <div class="sim-panel-body">
+          <div class="quick-actions">
+            <button class="quick-btn" id="qa-rush-north">
+              <span class="quick-btn-icon">⬆</span> North Rush Hour (20 vehicles)
+            </button>
+            <button class="quick-btn" id="qa-rush-south">
+              <span class="quick-btn-icon">⬇</span> South Rush Hour (20 vehicles)
+            </button>
+            <button class="quick-btn" id="qa-rush-east">
+              <span class="quick-btn-icon">➡</span> East Rush Hour (22 vehicles)
+            </button>
+            <button class="quick-btn" id="qa-rush-west">
+              <span class="quick-btn-icon">⬅</span> West Rush Hour (20 vehicles)
+            </button>
+            <button class="quick-btn" id="qa-peak-hour">
+              <span class="quick-btn-icon">🔥</span> Full Peak Hour (All Heavy)
+            </button>
+            <button class="quick-btn" id="qa-balanced">
+              <span class="quick-btn-icon">⚖</span> Balanced Traffic (8 per road)
+            </button>
+            <button class="quick-btn" id="qa-clear">
+              <span class="quick-btn-icon">🧹</span> Clear All Vehicles
+            </button>
+            <button class="quick-btn" id="qa-pause">
+              <span class="quick-btn-icon">⏸</span> Pause Simulation
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </div>{# end controls panel #}
+  </div>{# end sim-layout #}
+
+</div>{# end intersection-page #}
+{% endblock %}
+
+{% block extra_js %}
+  <script type="module" src="{{ url_for('static', filename='js/intersection.js') }}"></script>
+{% endblock %}

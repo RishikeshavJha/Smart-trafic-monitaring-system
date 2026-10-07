@@ -38,14 +38,13 @@ export class ApiError extends Error {
 }
 
 /**
- * Execute an HTTP request against the application backend.
+ * Execute a standard API request returning the envelope object { ok, data, error }.
  *
  * @param {string} url - Target API URL.
  * @param {RequestInit} [options={}] - Fetch configuration options.
- * @returns {Promise<any>} Resolves to data payload from { ok: true, data: ... }.
- * @throws {ApiError}
+ * @returns {Promise<{ ok: boolean, data?: any, error?: { code: string, message: string } }>}
  */
-export async function apiRequest(url, options = {}) {
+export async function fetchApi(url, options = {}) {
   const config = { ...options };
   const method = (config.method || "GET").toUpperCase();
   const headers = new Headers(config.headers || {});
@@ -70,11 +69,14 @@ export async function apiRequest(url, options = {}) {
   try {
     response = await fetch(url, config);
   } catch (networkError) {
-    throw new ApiError(
-      networkError.message || "Network connection failed",
-      "NETWORK_ERROR",
-      0
-    );
+    return {
+      ok: false,
+      data: null,
+      error: {
+        code: "NETWORK_ERROR",
+        message: networkError.message || "Network connection failed",
+      },
+    };
   }
 
   // Parse JSON response
@@ -82,50 +84,64 @@ export async function apiRequest(url, options = {}) {
   try {
     json = await response.json();
   } catch (parseError) {
-    if (!response.ok) {
-      throw new ApiError(
-        `Server returned error ${response.status} (${response.statusText})`,
-        "HTTP_ERROR",
-        response.status
-      );
-    }
-    throw new ApiError(
-      "Invalid JSON response returned by server",
-      "INVALID_JSON",
-      response.status
-    );
+    return {
+      ok: false,
+      data: null,
+      error: {
+        code: "INVALID_JSON",
+        message: `Server returned ${response.status} with non-JSON body`,
+      },
+    };
   }
 
-  // Handle standard API envelope: { ok: bool, data: any, error: { code, message } | null }
+  // Standard API envelope already is { ok: bool, data: any, error: { code, message } | null }
   if (json && typeof json === "object" && "ok" in json) {
-    if (json.ok) {
-      return json.data;
-    }
-    const errObj = json.error || {};
-    const errMsg = errObj.message || "An unexpected error occurred.";
-    const errCode = errObj.code || `HTTP_${response.status}`;
-    throw new ApiError(errMsg, errCode, response.status, errObj);
+    return json;
   }
 
-  // Fallback if response didn't follow the envelope
   if (!response.ok) {
-    throw new ApiError(
-      json.message || `Request failed with status ${response.status}`,
-      "HTTP_ERROR",
-      response.status,
-      json
-    );
+    return {
+      ok: false,
+      data: null,
+      error: {
+        code: `HTTP_${response.status}`,
+        message: json?.message || `Request failed with status ${response.status}`,
+      },
+    };
   }
 
-  return json;
+  return { ok: true, data: json, error: null };
+}
+
+/**
+ * Execute an HTTP request against the application backend and unwrap data (throws on error).
+ *
+ * @param {string} url - Target API URL.
+ * @param {RequestInit} [options={}] - Fetch configuration options.
+ * @returns {Promise<any>} Resolves to data payload from { ok: true, data: ... }.
+ * @throws {ApiError}
+ */
+export async function apiRequest(url, options = {}) {
+  const result = await fetchApi(url, options);
+  if (result.ok) {
+    return result.data;
+  }
+  const errObj = result.error || {};
+  throw new ApiError(
+    errObj.message || "An unexpected error occurred.",
+    errObj.code || "API_ERROR",
+    500,
+    errObj
+  );
 }
 
 /**
  * Convenience methods
  */
 export const api = {
-  get: (url, options = {}) => apiRequest(url, { ...options, method: "GET" }),
-  post: (url, body, options = {}) => apiRequest(url, { ...options, method: "POST", body }),
-  put: (url, body, options = {}) => apiRequest(url, { ...options, method: "PUT", body }),
-  delete: (url, options = {}) => apiRequest(url, { ...options, method: "DELETE" }),
+  get: (url, options = {}) => fetchApi(url, { ...options, method: "GET" }),
+  post: (url, body, options = {}) => fetchApi(url, { ...options, method: "POST", body }),
+  put: (url, body, options = {}) => fetchApi(url, { ...options, method: "PUT", body }),
+  delete: (url, options = {}) => fetchApi(url, { ...options, method: "DELETE" }),
 };
+

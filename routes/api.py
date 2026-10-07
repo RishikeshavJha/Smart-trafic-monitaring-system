@@ -429,10 +429,7 @@ def start_engine_route():
     if not security.start_limiter.is_allowed(client_ip, max_requests=30, window_seconds=60.0):
         return err_response("RATE_LIMIT_EXCEEDED", "Too many start/stop requests. Please slow down.", 429)
 
-    if not request.is_json:
-        return err_response("UNSUPPORTED_MEDIA_TYPE", "Request body must be JSON", 415)
-
-    data = request.get_json() or {}
+    data = request.get_json(silent=True) or {}
     source = data.get("source", "simulation")
     valid_sources = ("simulation", "upload", "sample", "webcam")
     if source not in valid_sources:
@@ -654,3 +651,43 @@ def sse_stream():
     response.headers["X-Accel-Buffering"] = "no"
     response.headers["Connection"] = "keep-alive"
     return response
+
+
+@api_bp.route("/simulation/state", methods=["GET", "POST"])
+def simulation_state():
+    """Get or update interactive 4-way intersection simulation state.
+
+    GET: Returns current simulated vehicle counts per approach zone and signal state.
+    POST: Accepts {"zones": {"N": int, "S": int, "E": int, "W": int}} to synchronize
+          the interactive simulator with the live backend telemetry & dashboard.
+    """
+    engine = get_engine(current_app.config.get("DATABASE_PATH"))
+
+    if request.method == "POST":
+        payload = request.get_json(silent=True) or {}
+        zones = payload.get("zones")
+        if not isinstance(zones, dict):
+            return err_response("INVALID_PAYLOAD", "Payload must contain a 'zones' dictionary with N, S, E, W counts", 400)
+
+        counts = {
+            "N": float(zones.get("N", 0)),
+            "S": float(zones.get("S", 0)),
+            "E": float(zones.get("E", 0)),
+            "W": float(zones.get("W", 0)),
+        }
+        updated_snap = engine.set_simulation_counts(counts)
+        return ok_response({
+            "message": "Simulation counts synchronized",
+            "snapshot": updated_snap,
+            "zones": counts,
+        })
+
+    # GET request
+    snap = engine.latest_snapshot
+    if not snap and engine.active_source:
+        snap = engine.active_source.read_snapshot()
+
+    return ok_response({
+        "status": engine.status,
+        "snapshot": snap,
+    })
