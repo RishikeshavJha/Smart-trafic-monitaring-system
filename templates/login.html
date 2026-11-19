@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Login – Smart Traffic Monitoring System{% endblock %}
+{% block description %}Sign in to your Smart Traffic Monitoring System account.{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+  <div class="auth-card">
+
+    <!-- Logo / Brand -->
+    <div class="auth-brand">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="6"  r="3" fill="#ef4444"/>
+        <circle cx="12" cy="12" r="3" fill="#f59e0b"/>
+        <circle cx="12" cy="18" r="3" fill="#22c55e"/>
+        <rect x="10" y="2"  width="4" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+      <span class="auth-brand-name">Smart Traffic</span>
+    </div>
+
+    <h1 class="auth-title">Welcome back</h1>
+    <p class="auth-subtitle">Sign in to access the live dashboard and your traffic data.</p>
+
+    <!-- Error / success messages -->
+    <div id="auth-message" class="auth-message" role="alert" aria-live="polite" hidden></div>
+
+    <!-- Login Form -->
+    <form id="login-form" class="auth-form" novalidate>
+      <div class="form-group">
+        <label for="login-email" class="form-label">Email address</label>
+        <input
+          id="login-email"
+          type="email"
+          class="form-input"
+          placeholder="you@example.com"
+          autocomplete="email"
+          required
+        >
+        <span class="form-error" id="login-email-error"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="login-password" class="form-label">Password</label>
+        <div class="input-wrap">
+          <input
+            id="login-password"
+            type="password"
+            class="form-input"
+            placeholder="••••••••"
+            autocomplete="current-password"
+            required
+          >
+          <button type="button" class="input-eye" aria-label="Toggle password visibility" data-target="login-password">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <span class="form-error" id="login-password-error"></span>
+      </div>
+
+      <button type="submit" class="btn btn--primary btn--full" id="login-btn">
+        <span class="btn-label">Sign in</span>
+        <span class="btn-spinner" hidden aria-hidden="true"></span>
+      </button>
+    </form>
+
+    <p class="auth-switch">
+      Don't have an account?
+      <a href="{{ url_for('pages.signup') }}" class="auth-link">Create one</a>
+    </p>
+
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="{{ url_for('static', filename='js/pages/login.js') }}"></script>
+{% endblock %}
+

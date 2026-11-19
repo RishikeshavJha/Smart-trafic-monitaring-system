@@ -87,11 +87,11 @@ def _build_csp_header(app: Flask) -> str:
     """
     directives = {
         "default-src": "'self'",
-        "script-src": "'self'",
+        "script-src": "'self' https://www.gstatic.com",
         "style-src": "'self'",
         "font-src": "'self'",
-        "img-src": "'self' data: blob:",
-        "connect-src": "'self'",
+        "img-src": "'self' data: blob: https://*.googleusercontent.com",
+        "connect-src": "'self' https://*.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.googleapis.com",
         "media-src": "'self' blob:",
         "object-src": "'none'",
         "frame-ancestors": "'none'",

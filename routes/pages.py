@@ -91,6 +91,18 @@ def intersection():
     return render_template("intersection.html")
 
 
+@pages_bp.route("/login")
+def login():
+    """Render the Firebase login page."""
+    return render_template("login.html")
+
+
+@pages_bp.route("/signup")
+def signup():
+    """Render the Firebase sign-up page."""
+    return render_template("signup.html")
+
+
 @pages_bp.route("/styleguide")
 def styleguide():
     """Render the design tokens and component styleguide (debug only)."""

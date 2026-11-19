@@ -83,6 +83,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
 
   {% block extra_head %}{% endblock %}
 </head>
@@ -152,6 +153,11 @@
           <li>
             <a href="{{ url_for('pages.intersection') }}" class="nav-link {% if request.endpoint == 'pages.intersection' %}nav-link--active{% endif %}" {% if request.endpoint == 'pages.intersection' %}aria-current="page"{% endif %}>
               Simulation
+            </a>
+          </li>
+          <li id="nav-login-item">
+            <a href="{{ url_for('pages.login') }}" class="nav-link {% if request.endpoint in ('pages.login','pages.signup') %}nav-link--active{% endif %}">
+              Login
             </a>
           </li>
         </ul>
@@ -264,6 +270,7 @@
   <script type="module" src="{{ url_for('static', filename='js/modules/toast.js') }}"></script>
   <script type="module" src="{{ url_for('static', filename='js/modules/connection.js') }}"></script>
   <script type="module" src="{{ url_for('static', filename='js/modules/api.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/modules/firebase-sync.js') }}"></script>
 
   {% block extra_js %}{% endblock %}
 </body>
