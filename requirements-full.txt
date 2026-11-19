@@ -1,0 +1,19 @@
+# requirements-full.txt – Full dependencies for local Computer Vision / YOLOv8 / Webcam execution
+#
+# Install for local CV development:
+#   pip install -r requirements-full.txt
+
+-r requirements.txt
+
+# ── Computer Vision / Video Processing ──────────────────────────────────────────
+opencv-python-headless
+
+# ── Detection & Tracking ────────────────────────────────────────────────────────
+ultralytics         # YOLOv8 models; installs PyTorch (CPU) as a dependency
+lapx                # Pure-Python LAP solver required by ByteTrack inside ultralytics
+
+# ── Machine learning (trend forecast) ─────────────────────────────────────────
+scikit-learn
+
+# ── Testing ────────────────────────────────────────────────────────────────────
+pytest
