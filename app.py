@@ -231,7 +231,10 @@ def create_app(env: str | None = None) -> Flask:
     # ------------------------------------------------------------------ #
     with app.app_context():
         import database
-        database.init_db(app.config["DATABASE_PATH"])
+        try:
+            database.init_db(app.config["DATABASE_PATH"])
+        except Exception as exc:
+            logger.warning("Could not initialize database at %s: %s", app.config["DATABASE_PATH"], exc)
 
     # ------------------------------------------------------------------ #
     # CLI commands                                                         #
@@ -253,7 +256,10 @@ def create_app(env: str | None = None) -> Flask:
     # ------------------------------------------------------------------ #
     # Upload folder                                                        #
     # ------------------------------------------------------------------ #
-    Path(app.config["UPLOAD_FOLDER"]).mkdir(parents=True, exist_ok=True)
+    try:
+        Path(app.config["UPLOAD_FOLDER"]).mkdir(parents=True, exist_ok=True)
+    except Exception as exc:
+        logger.warning("Could not create upload directory at %s: %s", app.config["UPLOAD_FOLDER"], exc)
 
     logger.info("create_app() complete – environment: %s", env)
     return app

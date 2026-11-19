@@ -12,10 +12,27 @@ immediately in development, but a warning is logged if no real key is set.
 """
 
 import os
+import shutil
 from pathlib import Path
 
 # Resolve the project root directory (one level up from this file).
 BASE_DIR = Path(__file__).resolve().parent
+
+# Check if running in a read-only serverless environment (Vercel / AWS Lambda)
+IS_SERVERLESS = bool(os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
+
+if IS_SERVERLESS:
+    tmp_db = Path("/tmp/traffic_data.db")
+    if not tmp_db.exists() and (BASE_DIR / "traffic_data.db").exists():
+        try:
+            shutil.copyfile(BASE_DIR / "traffic_data.db", tmp_db)
+        except Exception:
+            pass
+    DEFAULT_DATABASE_PATH = str(tmp_db)
+    DEFAULT_UPLOAD_FOLDER = "/tmp/uploads"
+else:
+    DEFAULT_DATABASE_PATH = str(BASE_DIR / "traffic_data.db")
+    DEFAULT_UPLOAD_FOLDER = str(BASE_DIR / "uploads")
 
 # Default settings stored in database and referenced by engine and analytics
 DEFAULT_SETTINGS: dict = {
@@ -72,7 +89,7 @@ class Config:
     # ------------------------------------------------------------------ #
     # Database                                                             #
     # ------------------------------------------------------------------ #
-    DATABASE_PATH: str = str(BASE_DIR / "traffic_data.db")
+    DATABASE_PATH: str = os.environ.get("DATABASE_PATH", DEFAULT_DATABASE_PATH)
 
     # ------------------------------------------------------------------ #
     # Flask-Compress                                                       #
@@ -91,7 +108,7 @@ class Config:
     # ------------------------------------------------------------------ #
     # Upload paths                                                         #
     # ------------------------------------------------------------------ #
-    UPLOAD_FOLDER: str = str(BASE_DIR / "uploads")
+    UPLOAD_FOLDER: str = os.environ.get("UPLOAD_FOLDER", DEFAULT_UPLOAD_FOLDER)
     MAX_CONTENT_LENGTH: int = 100 * 1024 * 1024  # 100 MB upload limit
 
     # ------------------------------------------------------------------ #
