@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}Sign Up – Smart Traffic Monitoring System{% endblock %}
-{% block description %}Create an account to access the Smart Traffic Monitoring System.{% endblock %}
+{% block description %}Create your account using Google to access the Smart Traffic Monitoring System.{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
@@ -11,7 +11,6 @@
 <section class="auth-page">
   <div class="auth-card">
 
-    <!-- Logo / Brand -->
     <div class="auth-brand">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <circle cx="12" cy="6"  r="3" fill="#ef4444"/>
@@ -19,68 +18,34 @@
         <circle cx="12" cy="18" r="3" fill="#22c55e"/>
         <rect x="10" y="2"  width="4" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
       </svg>
-      <span class="auth-brand-name">Smart Traffic</span>
+      <span class="auth-brand-name">Smart Traffic Monitoring</span>
     </div>
 
-    <h1 class="auth-title">Create account</h1>
-    <p class="auth-subtitle">Start monitoring traffic and storing real-time data in the cloud.</p>
+    <h1 class="auth-title">Create Account</h1>
+    <p class="auth-subtitle">Get started with your Google account. Real-time traffic monitoring and cloud database sync will be enabled automatically.</p>
 
     <div id="auth-message" class="auth-message" role="alert" aria-live="polite" hidden></div>
 
-    <!-- Signup Form -->
-    <form id="signup-form" class="auth-form" novalidate>
-      <div class="form-group">
-        <label for="signup-name" class="form-label">Display name</label>
-        <input
-          id="signup-name"
-          type="text"
-          class="form-input"
-          placeholder="Rishikeshav Jha"
-          autocomplete="name"
-        >
-      </div>
-
-      <div class="form-group">
-        <label for="signup-email" class="form-label">Email address</label>
-        <input
-          id="signup-email"
-          type="email"
-          class="form-input"
-          placeholder="you@example.com"
-          autocomplete="email"
-          required
-        >
-        <span class="form-error" id="signup-email-error"></span>
-      </div>
-
-      <div class="form-group">
-        <label for="signup-password" class="form-label">Password <small>(min 6 characters)</small></label>
-        <div class="input-wrap">
-          <input
-            id="signup-password"
-            type="password"
-            class="form-input"
-            placeholder="••••••••"
-            autocomplete="new-password"
-            required
-          >
-          <button type="button" class="input-eye" aria-label="Toggle password visibility" data-target="signup-password">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-          </button>
-        </div>
-        <span class="form-error" id="signup-password-error"></span>
-      </div>
-
-      <button type="submit" class="btn btn--primary btn--full" id="signup-btn">
-        <span class="btn-label">Create account</span>
+    <div class="auth-google-container">
+      <button type="button" class="btn btn-google" id="google-signup-btn">
+        <svg class="google-icon" width="20" height="20" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        </svg>
+        <span class="btn-label">Sign up with Google</span>
         <span class="btn-spinner" hidden aria-hidden="true"></span>
       </button>
-    </form>
+    </div>
 
-    <p class="auth-switch">
-      Already have an account?
-      <a href="{{ url_for('pages.login') }}" class="auth-link">Sign in</a>
-    </p>
+    <div class="auth-security-note">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      <span>Only Google Sign-In is enabled for secure access.</span>
+    </div>
 
   </div>
 </section>
@@ -89,4 +54,3 @@
 {% block extra_js %}
 <script type="module" src="{{ url_for('static', filename='js/pages/signup.js') }}"></script>
 {% endblock %}
-

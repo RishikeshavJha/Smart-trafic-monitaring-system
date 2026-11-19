@@ -1,65 +1,50 @@
 /**
  * static/js/pages/signup.js
- * Handles the signup page form submission with Firebase Authentication.
+ * Redirects or initiates Google Sign-In.
  */
 
-import { signUp, onAuthChange } from "../modules/firebase-auth.js";
+import { signInWithGoogle, onAuthChange } from "../modules/firebase-auth.js";
 
-const form   = document.getElementById("signup-form");
-const btn    = document.getElementById("signup-btn");
-const msgBox = document.getElementById("auth-message");
+const googleBtn = document.getElementById("google-signup-btn") || document.getElementById("google-login-btn");
+const msgBox    = document.getElementById("auth-message");
 
-/** Redirect if already signed in */
 onAuthChange((user) => {
-  if (user) window.location.href = "/dashboard";
+  if (user) {
+    window.location.href = "/dashboard";
+  }
 });
 
 function showMessage(text, isError = true) {
+  if (!msgBox) return;
   msgBox.textContent = text;
   msgBox.className   = `auth-message ${isError ? "auth-message--error" : "auth-message--success"}`;
   msgBox.hidden      = false;
 }
 
 function setLoading(loading) {
-  btn.disabled = loading;
-  btn.querySelector(".btn-label").textContent = loading ? "Creating…" : "Create account";
-  btn.querySelector(".btn-spinner").hidden     = !loading;
+  if (!googleBtn) return;
+  googleBtn.disabled = loading;
+  const label = googleBtn.querySelector(".btn-label");
+  const spinner = googleBtn.querySelector(".btn-spinner");
+  if (label) label.textContent = loading ? "Connecting with Google…" : "Sign up with Google";
+  if (spinner) spinner.hidden = !loading;
 }
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  msgBox.hidden = true;
+if (googleBtn) {
+  googleBtn.addEventListener("click", async () => {
+    if (msgBox) msgBox.hidden = true;
+    setLoading(true);
 
-  const name     = document.getElementById("signup-name").value.trim();
-  const email    = document.getElementById("signup-email").value.trim();
-  const password = document.getElementById("signup-password").value;
-
-  if (!email || !password) {
-    showMessage("Email and password are required.");
-    return;
-  }
-  if (password.length < 6) {
-    showMessage("Password must be at least 6 characters.");
-    return;
-  }
-
-  setLoading(true);
-  try {
-    await signUp(email, password, name);
-    showMessage("Account created! Redirecting to dashboard…", false);
-    setTimeout(() => { window.location.href = "/dashboard"; }, 1000);
-  } catch (err) {
-    showMessage(err.message);
-  } finally {
-    setLoading(false);
-  }
-});
-
-/** Toggle password visibility */
-document.querySelectorAll(".input-eye").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const input = document.getElementById(btn.dataset.target);
-    input.type  = input.type === "password" ? "text" : "password";
+    try {
+      const result = await signInWithGoogle();
+      showMessage(`Welcome, ${result.user.displayName || result.user.email}! Redirecting…`, false);
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 600);
+    } catch (err) {
+      showMessage(err.message, true);
+    } finally {
+      setLoading(false);
+    }
   });
-});
-
+}

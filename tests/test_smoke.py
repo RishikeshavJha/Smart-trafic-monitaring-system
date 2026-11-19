@@ -141,7 +141,7 @@ def test_base_layout_structure(client):
 
 def test_landing_page_hero_and_assets(client):
     """Landing page must contain exact hero copy, single H1, and served assets."""
-    res = client.get("/")
+    res = client.get("/landing")
     assert res.status_code == 200
     html = res.data.decode("utf-8")
     assert "See your intersection" in html
@@ -168,7 +168,7 @@ def test_landing_page_hero_and_assets(client):
 
 def test_landing_page_sections_and_copy(client):
     """Landing page must include problem statement, built-with strip, and 6 feature cards."""
-    res = client.get("/")
+    res = client.get("/landing")
     assert res.status_code == 200
     html = res.data.decode("utf-8")
 

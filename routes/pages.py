@@ -28,11 +28,17 @@ pages_bp = Blueprint("pages", __name__)
 
 @pages_bp.route("/")
 def index():
-    """Render the landing page.
+    """First page when opening the website – serves Google Login.
 
-    Passes no extra context beyond what the template context processor
-    already injects (g.project).
+    Once authenticated with Google, users are automatically directed to /dashboard.
+    The landing overview remains accessible at /landing.
     """
+    return render_template("login.html")
+
+
+@pages_bp.route("/landing")
+def landing():
+    """Render the project overview / landing page."""
     return render_template("index.html")
 
 

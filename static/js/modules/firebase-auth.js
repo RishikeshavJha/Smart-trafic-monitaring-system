@@ -1,70 +1,48 @@
 /**
  * static/js/modules/firebase-auth.js
- * Firebase Authentication – login, signup, logout, and auth-state observer.
+ * Firebase Authentication – Google Sign-In, logout, and auth-state observer.
  *
  * Exports:
- *   signUp(email, password, displayName)  → Promise<UserCredential>
- *   signIn(email, password)               → Promise<UserCredential>
+ *   signInWithGoogle()                    → Promise<UserCredential>
  *   signOut()                             → Promise<void>
  *   onAuthChange(callback)                → unsubscribe function
  *   getCurrentUser()                      → User | null
  */
 
 import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
   signOut as firebaseSignOut,
   onAuthStateChanged,
-  updateProfile,
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
 import { auth } from "./firebase-config.js";
 
+const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: "select_account" });
+
 /** Map Firebase auth error codes to friendly messages. */
 function friendlyError(code) {
   const map = {
-    "auth/email-already-in-use":    "An account with this email already exists.",
-    "auth/invalid-email":           "Please enter a valid email address.",
-    "auth/weak-password":           "Password must be at least 6 characters.",
-    "auth/user-not-found":          "No account found with this email.",
-    "auth/wrong-password":          "Incorrect password. Please try again.",
-    "auth/too-many-requests":       "Too many attempts. Please wait a moment.",
-    "auth/network-request-failed":  "Network error. Check your connection.",
-    "auth/invalid-credential":      "Invalid credentials. Please try again.",
+    "auth/popup-closed-by-user":   "Sign-in was cancelled.",
+    "auth/popup-blocked":          "Sign-in popup was blocked by your browser. Please allow popups.",
+    "auth/cancelled-popup-request": "Sign-in request was replaced by another popup.",
+    "auth/network-request-failed": "Network error. Please check your connection.",
+    "auth/operation-not-allowed":  "Google sign-in is not enabled in Firebase Console.",
+    "auth/unauthorized-domain":    "This domain is not authorized in Firebase Console.",
   };
   return map[code] || "Authentication failed. Please try again.";
 }
 
 /**
- * Register a new user with email + password.
- * @param {string} email
- * @param {string} password
- * @param {string} [displayName]
+ * Sign in or sign up with Google popup.
  * @returns {Promise<import("firebase/auth").UserCredential>}
  */
-export async function signUp(email, password, displayName = "") {
+export async function signInWithGoogle() {
   try {
-    const credential = await createUserWithEmailAndPassword(auth, email, password);
-    if (displayName.trim()) {
-      await updateProfile(credential.user, { displayName: displayName.trim() });
-    }
-    return credential;
+    return await signInWithPopup(auth, googleProvider);
   } catch (err) {
-    throw new Error(friendlyError(err.code));
-  }
-}
-
-/**
- * Sign in an existing user with email + password.
- * @param {string} email
- * @param {string} password
- * @returns {Promise<import("firebase/auth").UserCredential>}
- */
-export async function signIn(email, password) {
-  try {
-    return await signInWithEmailAndPassword(auth, email, password);
-  } catch (err) {
-    throw new Error(friendlyError(err.code));
+    throw new Error(friendlyError(err.code) || err.message);
   }
 }
 
@@ -92,4 +70,3 @@ export function onAuthChange(callback) {
 export function getCurrentUser() {
   return auth.currentUser;
 }
-
