@@ -258,7 +258,10 @@ def create_app(env: str | None = None) -> Flask:
     return app
 
 
+# Top-level Flask application instance for WSGI and deployment platforms (e.g. Vercel, Gunicorn)
+app = create_app()
+
+
 if __name__ == "__main__":
-    app = create_app("development")
     app.run(host="0.0.0.0", port=5000, debug=True)
 
