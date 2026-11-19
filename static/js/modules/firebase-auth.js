@@ -28,8 +28,8 @@ function friendlyError(code) {
     "auth/popup-blocked":          "Sign-in popup was blocked by your browser. Please allow popups.",
     "auth/cancelled-popup-request": "Sign-in request was replaced by another popup.",
     "auth/network-request-failed": "Network error. Please check your connection.",
-    "auth/operation-not-allowed":  "Google sign-in is not enabled in Firebase Console.",
-    "auth/unauthorized-domain":    "This domain is not authorized in Firebase Console.",
+    "auth/operation-not-allowed":  "Google sign-in is not enabled. Enable it in Firebase Console > Authentication > Sign-in method.",
+    "auth/unauthorized-domain":    "Domain not authorized. Use http://localhost:5000 or add 127.0.0.1 to Firebase Console > Authentication > Settings > Authorized domains.",
   };
   return map[code] || "Authentication failed. Please try again.";
 }

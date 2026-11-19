@@ -31,11 +31,11 @@ function injectAuthUI(user) {
   const existing = navActions.querySelector("#firebase-auth-pill");
   if (existing) existing.remove();
 
+  const isAuthPage = ["/", "/login", "/signup"].includes(window.location.pathname);
+
   const pill = document.createElement("div");
   pill.id = "firebase-auth-pill";
   pill.style.cssText = "display:flex;align-items:center;gap:0.5rem;";
-
-  const navLoginItem = document.getElementById("nav-login-item");
 
   if (user) {
     const initials = (user.displayName || user.email || "?")
@@ -48,7 +48,7 @@ function injectAuthUI(user) {
     pill.innerHTML = `
       <span class="nav-user-pill" title="${user.email}">
         <span class="nav-user-avatar">${initials}</span>
-        <span class="user-name-label" style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${user.displayName || user.email}</span>
+        <span class="user-name-label" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${user.displayName || user.email}</span>
       </span>
       <button id="logout-btn" class="btn btn--ghost" style="font-size:0.8rem;padding:0.3rem 0.7rem;" aria-label="Sign out">Logout</button>
     `;
@@ -59,27 +59,15 @@ function injectAuthUI(user) {
       window.location.href = "/";
     });
 
-    if (navLoginItem) {
-      navLoginItem.innerHTML = `<a href="#" class="nav-link" id="mobile-logout-link">Logout (${user.displayName || user.email})</a>`;
-      document.getElementById("mobile-logout-link")?.addEventListener("click", async (e) => {
-        e.preventDefault();
-        await signOut();
-        window.location.href = "/";
-      });
-    }
-
     injectSyncBadge(true);
   } else {
-    pill.innerHTML = `
-      <a href="/login" class="btn btn--ghost" style="font-size:0.85rem;padding:0.3rem 0.8rem;">Login</a>
-      <a href="/signup" class="btn btn--primary" style="font-size:0.85rem;padding:0.3rem 0.8rem;">Sign Up</a>
-    `;
-    navActions.prepend(pill);
-
-    if (navLoginItem) {
-      navLoginItem.innerHTML = `<a href="/login" class="nav-link">Login</a>`;
+    // If user is already on the login page, don't show duplicate login buttons in navbar
+    if (!isAuthPage) {
+      pill.innerHTML = `
+        <a href="/login" class="btn btn--primary" style="font-size:0.85rem;padding:0.35rem 0.9rem;">Sign In</a>
+      `;
+      navActions.prepend(pill);
     }
-
     injectSyncBadge(false);
   }
 }
