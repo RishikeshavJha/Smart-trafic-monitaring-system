@@ -27,6 +27,7 @@ pages_bp = Blueprint("pages", __name__)
 
 
 @pages_bp.route("/")
+@pages_bp.route("/app.py")
 def index():
     """First page when opening the website – serves Google Login.
 
