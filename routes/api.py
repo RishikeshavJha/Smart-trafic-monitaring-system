@@ -93,9 +93,11 @@ def healthz():
 
 @api_bp.route("/snapshot")
 def get_single_snapshot_image():
-    """Return a single JPEG frame from the active video source or a neutral placeholder."""
-    import cv2
-    import numpy as np
+    """Return a single JPEG frame from the active video source or a neutral placeholder.
+
+    Falls back to a minimal JPEG placeholder when OpenCV is not available
+    (e.g. Vercel serverless environment).
+    """
     from engine import get_engine
 
     engine = get_engine(current_app.config.get("DATABASE_PATH"))
@@ -106,26 +108,42 @@ def get_single_snapshot_image():
         frame_bytes = active_source.get_latest_jpeg()
 
     if not frame_bytes:
-        # Generate a clean neutral placeholder frame for ROI editor
-        w, h = 640, 360
-        canvas = np.full((h, w, 3), (28, 20, 14), dtype=np.uint8)  # Dark slate
-        # Draw perspective road guide lines
-        cv2.line(canvas, (0, h), (w // 2 - 40, h // 2), (50, 40, 30), 2)
-        cv2.line(canvas, (w, h), (w // 2 + 40, h // 2), (50, 40, 30), 2)
-        cv2.line(canvas, (w // 2 - 20, h), (w // 2, h // 2), (80, 70, 60), 1, cv2.LINE_AA)
-        cv2.putText(
-            canvas,
-            "Reference Calibration Frame (640x360)",
-            (w // 2 - 160, h // 2 - 10),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.55,
-            (232, 238, 247),
-            1,
-            cv2.LINE_AA,
-        )
-        encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 80]
-        _, enc = cv2.imencode(".jpg", canvas, encode_param)
-        frame_bytes = enc.tobytes()
+        try:
+            import cv2
+            import numpy as np
+
+            # Generate a clean neutral placeholder frame for ROI editor
+            w, h = 640, 360
+            canvas = np.full((h, w, 3), (28, 20, 14), dtype=np.uint8)  # Dark slate
+            # Draw perspective road guide lines
+            cv2.line(canvas, (0, h), (w // 2 - 40, h // 2), (50, 40, 30), 2)
+            cv2.line(canvas, (w, h), (w // 2 + 40, h // 2), (50, 40, 30), 2)
+            cv2.line(canvas, (w // 2 - 20, h), (w // 2, h // 2), (80, 70, 60), 1, cv2.LINE_AA)
+            cv2.putText(
+                canvas,
+                "Reference Calibration Frame (640x360)",
+                (w // 2 - 160, h // 2 - 10),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.55,
+                (232, 238, 247),
+                1,
+                cv2.LINE_AA,
+            )
+            encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 80]
+            _, enc = cv2.imencode(".jpg", canvas, encode_param)
+            frame_bytes = enc.tobytes()
+        except ImportError:
+            # OpenCV not available (serverless/slim deployment) – return a minimal 1×1 grey JPEG
+            frame_bytes = (
+                b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00"
+                b"\xff\xdb\x00C\x00\x08\x06\x06\x07\x06\x05\x08\x07\x07\x07\t\t"
+                b"\x08\n\x0c\x14\r\x0c\x0b\x0b\x0c\x19\x12\x13\x0f\x14\x1d\x1a"
+                b"\x1f\x1e\x1d\x1a\x1c\x1c $.' \",#\x1c\x1c(7),01444\x1f'9=82<.342\x1e"
+                b"\xff\xc0\x00\x0b\x08\x00\x01\x00\x01\x01\x01\x11\x00\xff\xc4\x00"
+                b"\x1f\x00\x00\x01\x05\x01\x01\x01\x01\x01\x01\x00\x00\x00\x00\x00"
+                b"\x00\x00\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\xff\xda\x00"
+                b"\x08\x01\x01\x00\x00?\x00\xfb\xff\xd9"
+            )
 
     response = Response(frame_bytes, mimetype="image/jpeg")
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
