@@ -341,3 +341,4 @@ All endpoints return the uniform JSON envelope: `{"ok": bool, "data": ..., "erro
 
 10. **Q: What are the primary ethical considerations implemented?**  
     *A: Privacy by design: no license plate or face recognition, zero frame persistence on disk, and automated 24-hour cleanup of temporary video uploads.*
+RYRZ5T
